@@ -164,6 +164,28 @@ def citation_in_chunks(law: str, article_no: str, chunks: list[dict]) -> bool:
     return False
 
 
+def select_chunks_cited_in_answer(chunks: list[dict], answer: str) -> list[dict]:
+    """从回答【法律依据】中抽取引用，并映射回检索 chunks（保持引用顺序）。"""
+    cited = extract_citations(answer)
+    if not cited:
+        return []
+
+    matched: list[dict] = []
+    seen: set[tuple[str, str]] = set()
+    for law, article_no in cited:
+        for chunk in chunks:
+            chunk_law = normalize_law_name(chunk.get("law_name", ""))
+            chunk_no = chunk.get("article_no", "")
+            if chunk_law != law or not article_match(chunk_no, article_no):
+                continue
+            key = (chunk_law, chunk_no)
+            if key not in seen:
+                seen.add(key)
+                matched.append(chunk)
+            break
+    return matched
+
+
 def verify_citations(answer: str, chunks: list[dict]) -> VerifyResult:
     """校验回答引用：不在 KB 为 invalid；在 KB 但不在本次 chunks 为 warning。"""
     cited = extract_citations(answer)
