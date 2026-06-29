@@ -286,13 +286,12 @@ def main() -> None:
     )
 
     failed += run_cmd(
-        "[2] 关键题 q05,q26,q41",
+        "[2] 关键题 v05,v26,v41",
         [
             PYTHON,
             "scripts/test_rag_pipeline.py",
             "--ids",
-            "q05,q26,q41",
-            "--compare-modes",
+            "v05,v26,v41",
             "--output",
             "data/experiment/test_key_questions.json",
         ],
