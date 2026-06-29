@@ -83,15 +83,6 @@ class Settings(BaseSettings):
     uvicorn_host: str = "0.0.0.0"
     uvicorn_port: int = 8001
     log_level: str = "info"
-    # Agent 运行时
-    agent_enabled: bool = True
-    agent_router_llm_enabled: bool = True
-    # Agent Phase 2：案情咨询检索不足时用原问 baseline 补搜
-    agent_case_retry_enabled: bool = True
-    agent_case_retry_min_top_score: float = 0.55
-    agent_case_retry_min_score_gap: float = 0.08
-    agent_case_retry_max_law_ids: int = 2
-    agent_case_retry_min_domain_conf: float = 0.7
 
 
 settings = Settings()

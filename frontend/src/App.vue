@@ -42,24 +42,6 @@ interface CitationVerifyInfo {
   warnings: CitationIssue[]
 }
 
-interface AgentStep {
-  tool: string
-  label: string
-  status: 'running' | 'done' | 'error'
-  ms?: number
-  summary?: Record<string, unknown>
-}
-
-interface AgentPlan {
-  intent: string
-  plan_name: string
-  label: string
-  source: 'rule' | 'llm'
-  confidence?: number
-  reason?: string
-  steps: { tool: string; label: string }[]
-}
-
 interface ChatMessage {
   id: string
   role: 'user' | 'assistant'
@@ -71,14 +53,6 @@ interface ChatMessage {
   citationVerified?: boolean
   citationVerify?: CitationVerifyInfo
   answerRevised?: boolean
-  agentPlan?: AgentPlan
-  agentSteps?: AgentStep[]
-  retrievalRetry?: {
-    reason: string
-    strategy: string
-    attempts: number
-    label: string
-  }
 }
 
 const REASON_LABELS: Record<string, string> = {
@@ -121,26 +95,7 @@ function renderContent(msg: ChatMessage): string {
   return formatMessage(msg.content)
 }
 
-function agentStepStatus(step: AgentStep): 'success' | 'warning' | 'info' {
-  if (step.status === 'done') return 'success'
-  if (step.status === 'error') return 'warning'
-  return 'info'
-}
-
-function upsertAgentStep(msg: ChatMessage, step: AgentStep) {
-  if (!msg.agentSteps) msg.agentSteps = []
-  const idx = msg.agentSteps.findIndex((s) => s.tool === step.tool)
-  if (idx >= 0) {
-    msg.agentSteps[idx] = { ...msg.agentSteps[idx], ...step }
-  } else {
-    msg.agentSteps.push(step)
-  }
-}
-
 function typingHint(msg: ChatMessage): string {
-  const running = msg.agentSteps?.find((s) => s.status === 'running')
-  if (running) return `${running.label}…`
-  if (msg.agentPlan && !msg.content) return `Agent：${msg.agentPlan.label}…`
   if (msg.isLegal === false) return '正在生成回答…'
   if (msg.phase === 'verifying') return '正在校验法律依据…'
   if (msg.phase === 'retrieving' || msg.content) return '正在生成回答…'
@@ -297,12 +252,6 @@ async function sendMessage() {
         if (parsed.event === 'meta') {
           const { is_legal } = JSON.parse(parsed.data) as { is_legal: boolean }
           msg.isLegal = is_legal
-        } else if (parsed.event === 'agent_plan') {
-          msg.agentPlan = JSON.parse(parsed.data) as AgentPlan
-        } else if (parsed.event === 'agent_step') {
-          upsertAgentStep(msg, JSON.parse(parsed.data) as AgentStep)
-        } else if (parsed.event === 'agent_retry') {
-          msg.retrievalRetry = JSON.parse(parsed.data) as ChatMessage['retrievalRetry']
         } else if (parsed.event === 'start') {
           const { status } = JSON.parse(parsed.data) as { status?: string }
           if (status === 'retrieving') msg.phase = 'retrieving'
@@ -445,36 +394,6 @@ onMounted(loadLaws)
               <span v-if="msg.streaming && msg.phase === 'verifying'" class="typing verify-hint">
                 {{ typingHint(msg) }}
               </span>
-            </div>
-
-            <div
-              v-if="msg.role === 'assistant' && (msg.agentPlan || msg.agentSteps?.length)"
-              class="agent-panel"
-            >
-              <div v-if="msg.agentPlan" class="agent-plan">
-                <span class="agent-plan-label">Agent 计划</span>
-                <el-tag size="small" type="primary" effect="light">{{ msg.agentPlan.label }}</el-tag>
-                <el-tag size="small" effect="plain">
-                  {{ msg.agentPlan.source === 'llm' ? 'LLM 路由' : '规则路由' }}
-                </el-tag>
-              </div>
-              <ul v-if="msg.agentSteps?.length" class="agent-steps">
-                <li
-                  v-for="(step, idx) in msg.agentSteps"
-                  :key="step.tool + idx"
-                  :class="step.status"
-                >
-                  <el-tag :type="agentStepStatus(step)" size="small" effect="light">
-                    {{ step.status === 'running' ? '进行中' : step.status === 'done' ? '完成' : '异常' }}
-                  </el-tag>
-                  <span class="agent-step-label">{{ step.label }}</span>
-                  <span v-if="step.ms" class="agent-step-ms">{{ step.ms }}ms</span>
-                </li>
-              </ul>
-              <div v-if="msg.retrievalRetry" class="agent-retry">
-                <el-tag size="small" type="warning" effect="light">补充检索</el-tag>
-                <span class="agent-retry-label">{{ msg.retrievalRetry.label }}</span>
-              </div>
             </div>
 
             <div
@@ -788,67 +707,6 @@ onMounted(loadLaws)
 .citations {
   margin-top: 10px;
   width: 100%;
-}
-
-.agent-panel {
-  margin-top: 8px;
-  padding: 10px 12px;
-  border-radius: 10px;
-  background: #f0f7ff;
-  border: 1px solid #d9ecff;
-}
-
-.agent-plan {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 8px;
-}
-
-.agent-plan-label {
-  font-size: 12px;
-  color: #606266;
-  font-weight: 600;
-}
-
-.agent-steps {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.agent-steps li {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 13px;
-  color: #606266;
-}
-
-.agent-step-label {
-  flex: 1;
-}
-
-.agent-step-ms {
-  font-size: 12px;
-  color: #909399;
-}
-
-.agent-retry {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-top: 8px;
-  font-size: 13px;
-  color: #606266;
-}
-
-.agent-retry-label {
-  flex: 1;
 }
 
 .verify-banner {

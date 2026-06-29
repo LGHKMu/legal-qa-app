@@ -19,24 +19,7 @@ VALID_DOMAINS = frozenset({"宪法", "民法典", "刑法", "劳动法"})
 DOMAIN_HINTS: tuple[tuple[tuple[str, ...], str], ...] = (
     (("加班", "工资", "劳动", "辞退", "工伤", "试用期", "劳动合同", "仲裁"), "劳动法"),
     (("杀人", "盗窃", "诈骗", "犯罪", "判刑", "正当防卫", "交通肇事", "过失"), "刑法"),
-    (
-        (
-            "离婚",
-            "结婚",
-            "继承",
-            "合同",
-            "侵权",
-            "隐私",
-            "物权",
-            "借款",
-            "高空抛物",
-            "抛物",
-            "坠物",
-            "监护人",
-            "抛掷",
-        ),
-        "民法典",
-    ),
+    (("离婚", "结婚", "继承", "合同", "侵权", "隐私", "物权", "借款"), "民法典"),
     (("选举", "言论", "宪法", "基本权利", "人身自由", "受教育"), "宪法"),
 )
 
@@ -58,42 +41,6 @@ CASE_MARKERS: tuple[str, ...] = (
     "案情",
     "原告",
     "被告",
-)
-
-CONSULT_MARKERS: tuple[str, ...] = (
-    "怎么办",
-    "如何处理",
-    "怎么处理",
-    "能否",
-    "可以吗",
-    "是否违法",
-    "有没有责任",
-    "要不要赔",
-    "谁负责",
-    "谁承担",
-    "致人受伤",
-    "致人损害",
-    "受伤",
-)
-
-# 高频法律主题：触发词 → 检索锚词（消歧 + 补 Recall）
-TOPIC_SEARCH_RULES: tuple[tuple[tuple[str, ...], tuple[str, ...], tuple[str, ...]], ...] = (
-    (
-        ("高空抛物", "从楼上", "楼上扔", "抛下", "坠物"),
-        ("抛掷", "第一千二百五十四条"),
-        ("高空抛物", "抛掷物品", "建筑物", "监护人责任", "民法典"),
-    ),
-    (
-        ("未成年人", "小孩", "儿童"),
-        ("监护人", "第一千一百八十八条"),
-        ("未成年人", "监护人责任", "侵权责任", "民法典"),
-    ),
-)
-
-# 主题锚点：命中触发词时强制纳入检索结果（lookup parsed JSON）
-TOPIC_ANCHOR_ARTICLES: tuple[tuple[tuple[str, ...], str], ...] = (
-    (("高空抛物", "从楼上", "楼上扔", "抛下"), "民法典第1254条"),
-    (("未成年人", "小孩", "儿童"), "民法典第1188条"),
 )
 
 
@@ -134,89 +81,7 @@ def classify_query_type(question: str) -> str:
     q = question.strip()
     if len(q) > 50 or any(m in q for m in CASE_MARKERS):
         return "case"
-    if any(m in q for m in CONSULT_MARKERS):
-        return "case"
     return "concept"
-
-
-def topic_search_hints(question: str) -> list[str]:
-    """规则抽取主题检索锚词，用于改写增强与二轮补充检索。"""
-    hints: list[str] = []
-    for triggers, _anchors, keywords in TOPIC_SEARCH_RULES:
-        if any(t in question for t in triggers):
-            for kw in keywords:
-                if kw not in hints:
-                    hints.append(kw)
-    return hints
-
-
-def _matched_topic_anchors(question: str) -> list[tuple[str, tuple[str, ...]]]:
-    matched: list[tuple[str, tuple[str, ...]]] = []
-    for triggers, anchors, _keywords in TOPIC_SEARCH_RULES:
-        if any(t in question for t in triggers):
-            label = triggers[0]
-            matched.append((label, anchors))
-    return matched
-
-
-def topic_relevance_ok(question: str, chunks: list[dict], *, top_n: int = 5) -> tuple[bool, str]:
-    """检索结果是否覆盖问题中的关键法律主题（如高空抛物应对应抛掷物品）。"""
-    rules = _matched_topic_anchors(question)
-    if not rules or not chunks:
-        return True, ""
-
-    for label, anchors in rules:
-        found = False
-        for chunk in chunks[:top_n]:
-            blob = f"{chunk.get('article_no', '')} {chunk.get('text', '')}"
-            if any(a in blob for a in anchors):
-                found = True
-                break
-        if not found:
-            return False, f"topic_mismatch_{label}"
-    return True, ""
-
-
-def enrich_search_query(query: str | None, question: str, *, max_len: int = 80) -> str:
-    """在 LLM 改写 query 上叠加规则主题词，避免「高空」等歧义。"""
-    hints = topic_search_hints(question)
-    parts: list[str] = []
-    seen: set[str] = set()
-
-    def add(item: str) -> None:
-        item = item.strip()
-        if item and item not in seen:
-            seen.add(item)
-            parts.append(item)
-
-    for item in (query or "").split():
-        add(item)
-    for item in hints:
-        add(item)
-
-    if not parts:
-        return question.strip()[:max_len]
-    return " ".join(parts)[:max_len].strip()
-
-
-def build_case_retry_query(question: str, primary_meta: dict | None = None) -> str:
-    """案情二轮补充检索 query：优先规则主题词，避免 baseline 原问中的歧义词。"""
-    hints = topic_search_hints(question)
-    if hints:
-        return enrich_search_query(None, question)
-    rewrite_q = (primary_meta or {}).get("rewrite_query") or (primary_meta or {}).get("search_query")
-    if rewrite_q and rewrite_q.strip() != question.strip():
-        return enrich_search_query(rewrite_q, question)
-    return question.strip()
-
-
-def topic_anchor_lookup_questions(question: str) -> list[str]:
-    """返回需要保底查条的伪问题（供 lookup_article 使用）。"""
-    lookups: list[str] = []
-    for triggers, lookup_q in TOPIC_ANCHOR_ARTICLES:
-        if any(t in question for t in triggers):
-            lookups.append(lookup_q)
-    return list(dict.fromkeys(lookups))
 
 
 def _infer_domain_from_elements(elements: LegalElements | None) -> tuple[str | None, float]:
@@ -443,7 +308,7 @@ def rewrite_query(question: str, history: list[dict] | None = None) -> str | Non
         line = text.splitlines()[0].strip().strip('"').strip("'").strip("「」")
         if not line or len(line) < 2:
             return None
-        return enrich_search_query(line[:80], question, max_len=80)
+        return line[:80]
     except Exception as exc:
         logger.warning("Query 改写失败: %s", exc)
         return None
@@ -463,7 +328,6 @@ def rewrite_query_two_stage(
 
     query = build_query_from_elements(elements)
     if query:
-        query = enrich_search_query(query, question, max_len=80)
         logger.debug("两阶段改写: %s -> %s (%s)", question[:40], query, elements.to_dict())
         return query, elements
 

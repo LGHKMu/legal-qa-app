@@ -15,4 +15,3 @@ os.environ.setdefault("TQDM_DISABLE", "1")
 os.environ.setdefault("TRANSFORMERS_VERBOSITY", "error")
 # CI 单元测试不依赖 LLM 改写
 os.environ.setdefault("QUERY_REWRITE_ENABLED", "false")
-os.environ.setdefault("AGENT_ROUTER_LLM_ENABLED", "false")

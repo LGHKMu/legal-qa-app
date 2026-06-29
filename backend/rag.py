@@ -704,7 +704,6 @@ def retrieve_fusion(
     rerank: bool | None = None,
     *,
     profile: bool = False,
-    search_query_override: str | None = None,
 ) -> tuple[list[dict], dict]:
     """Cascade 混合检索：多路召回 + 池精排 + 改写列 union 精排。"""
     profile_ctx = retrieval_profile_session() if profile else nullcontext()
@@ -717,7 +716,6 @@ def retrieve_fusion(
             rewrite,
             rerank,
             profile_ms=profile_ms if profile else None,
-            search_query_override=search_query_override,
         )
 
 
@@ -730,7 +728,6 @@ def _retrieve_fusion_impl(
     rerank: bool | None,
     *,
     profile_ms: dict[str, float] | None,
-    search_query_override: str | None = None,
 ) -> tuple[list[dict], dict]:
     final_k = top_k or settings.top_k
     use_rerank = settings.rerank_enabled if rerank is None else rerank
@@ -751,15 +748,8 @@ def _retrieve_fusion_impl(
     }
 
     if not use_rewrite:
-        if search_query_override:
-            search_q = search_query_override.strip()
-            source = "topic_retry"
-        else:
-            search_q, source = build_search_query(question, history, rewrite=use_rewrite)
+        search_q, source = build_search_query(question, history, rewrite=use_rewrite)
         fetch_k = _fetch_k_for_retrieval(final_k, rerank=use_rerank)
-        from query_rewrite import infer_retrieval_context
-
-        retrieval_ctx = infer_retrieval_context(question, search_q, source=source)
         _, by_id, path_hits = _hybrid_retrieve_single(search_q, law_filter, fetch_k)
         chunks, fusion_mode, pool_size, cascade_meta = _resolve_hybrid_chunks(
             question,
@@ -769,19 +759,16 @@ def _retrieve_fusion_impl(
             by_id=by_id,
             rewrite_q=search_q if source not in ("baseline", "article_lookup") else None,
             rewrite_source=source,
-            retrieval_ctx=retrieval_ctx,
         )
         rerank_query = build_rerank_query(
             question,
             search_q if source not in ("baseline", "article_lookup") else None,
             source=source,
-            query_type=retrieval_ctx.query_type,
         )
         rerank_queries = build_rerank_queries(
             question,
             search_q if source not in ("baseline", "article_lookup") else None,
             source=source,
-            query_type=retrieval_ctx.query_type,
         )
         return chunks, _attach_profile_to_meta(
             {
@@ -908,13 +895,6 @@ def _retrieve_fusion_impl(
     return chunks, meta
 
 
-def sync_citations_for_answer(chunks: list[dict], answer: str) -> list[dict]:
-    """引用卡片与【法律依据】对齐：只展示回答中实际引用的检索法条。"""
-    from verify.citations import select_chunks_cited_in_answer
-
-    return format_citations(select_chunks_cited_in_answer(chunks, answer))
-
-
 def format_citations(chunks: list[dict]) -> list[dict]:
     return [
         {
@@ -1019,7 +999,6 @@ def answer_question(
                 {"answer_chars": len(answer)},
             )
         from verify.repair import verify_and_repair
-        from query_rewrite import is_article_lookup
 
         repair = verify_and_repair(
             answer,
@@ -1027,11 +1006,9 @@ def answer_question(
             question=question,
             history=relevant,
             trace=trace,
-            intent="statute_lookup" if is_article_lookup(question) else "",
         )
         answer = repair.answer
         citation_verified = repair.citation_verified
-        citations = sync_citations_for_answer(chunks, answer)
     else:
         t0 = time.perf_counter()
         answer = ask_llm_general(question, relevant)

@@ -107,12 +107,13 @@ def main() -> None:
     )
 
     failed += run_step(
-        "[2/N] 关键题诊断 v05,v26,v41（baseline / 改写 / Cascade 混合）",
+        "[2/N] 关键题诊断 q05,q26,q41（single vs two_stage + dual_rrf）",
         [
             PYTHON,
             str(scripts / "test_rag_pipeline.py"),
             "--ids",
-            "v05,v26,v41",
+            "q05,q26,q41",
+            "--compare-modes",
             "--output",
             "data/test_key_questions.json",
         ],

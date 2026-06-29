@@ -7,14 +7,18 @@
   python scripts/test_rag_pipeline.py --smoke
 
   # 2. 单题详细诊断（需 DEEPSEEK_API_KEY）
-  python scripts/test_rag_pipeline.py --id v05
+  python scripts/test_rag_pipeline.py --id q05
 
-  # 3. 多题对比 baseline / 改写 / Cascade 混合
-  python scripts/test_rag_pipeline.py --ids v05,v26,v41
+  # 3. 多题对比 baseline / 改写 / 双路 RRF
+  python scripts/test_rag_pipeline.py --ids q05,q26,q41
 
-  # 4. 口语化问法子集（eval_questions_verified 中 oral_verified）
+  # 4. 对比一阶段 vs 两阶段改写（指定题号）
+  python scripts/test_rag_pipeline.py --ids q05,q41 --compare-modes
+
+  # 5. 口语题快速集（q41-q60）
   python scripts/test_rag_pipeline.py --oral
-  # 5. 保存 JSON
+
+  # 6. 保存 JSON
   python scripts/test_rag_pipeline.py --oral --output data/test_result.json
 """
 
@@ -164,9 +168,9 @@ def print_result(r: dict) -> None:
 def main() -> None:
     parser = argparse.ArgumentParser(description="RAG 检索链路测试")
     parser.add_argument("--smoke", action="store_true", help="本地冒烟，不调 LLM")
-    parser.add_argument("--id", type=str, default="", help="单题 id，如 v05")
-    parser.add_argument("--ids", type=str, default="", help="多题逗号分隔，如 v05,v26,v41")
-    parser.add_argument("--oral", action="store_true", help="口语化问法子集（oral_verified）")
+    parser.add_argument("--id", type=str, default="", help="单题 id，如 q05")
+    parser.add_argument("--ids", type=str, default="", help="多题逗号分隔，如 q05,q26,q41")
+    parser.add_argument("--oral", action="store_true", help="口语题 q41-q60")
     parser.add_argument("--output", type=str, default="", help="保存 JSON 路径")
     args = parser.parse_args()
 
@@ -188,15 +192,11 @@ def main() -> None:
     elif args.ids:
         ids = {x.strip() for x in args.ids.split(",") if x.strip()}
         selected = [q for q in questions if q["id"] in ids]
-        if not selected:
-            raise SystemExit(f"未找到题目: {', '.join(sorted(ids))}")
     elif args.oral:
-        selected = [q for q in questions if q.get("group") == "oral_verified"]
-        if not selected:
-            raise SystemExit("未找到 oral_verified 题目")
+        selected = [q for q in questions if q.get("group") == "oral" or q["id"] >= "q41"]
     else:
         selected = questions[:5]
-        print("未指定题目，默认测试前 5 题。可用 --id v05 或 --oral\n")
+        print("未指定题目，默认测试前 5 题。可用 --id q05 或 --oral\n")
 
     print(f"测试 {len(selected)} 题，rewrite_mode={settings.query_rewrite_mode}")
     print_retrieval_config()

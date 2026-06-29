@@ -11,8 +11,6 @@ from prompts import (
     USER_PROMPT_GENERAL,
     USER_PROMPT_LEGAL,
     USER_PROMPT_NO_RAG,
-    USER_PROMPT_STATUTE_LOOKUP,
-    USER_PROMPT_CASE_CONSULT,
     format_articles,
 )
 
@@ -62,22 +60,13 @@ def build_legal_messages(
     question: str,
     chunks: list[dict],
     history: list[HistoryItem] | None = None,
-    *,
-    statute_lookup: bool = False,
-    case_consult: bool = False,
 ) -> list[dict]:
     messages: list[dict] = [{"role": "system", "content": SYSTEM_PROMPT_LEGAL}]
     messages.extend(_trim_history(history))
-    if statute_lookup:
-        user_template = USER_PROMPT_STATUTE_LOOKUP
-    elif case_consult:
-        user_template = USER_PROMPT_CASE_CONSULT
-    else:
-        user_template = USER_PROMPT_LEGAL
     messages.append(
         {
             "role": "user",
-            "content": user_template.format(
+            "content": USER_PROMPT_LEGAL.format(
                 articles=format_articles(chunks),
                 question=question,
             ),
@@ -125,20 +114,11 @@ def stream_llm(
     question: str,
     chunks: list[dict],
     history: list[HistoryItem] | None = None,
-    *,
-    statute_lookup: bool = False,
-    case_consult: bool = False,
 ) -> Iterator[str]:
     client = get_client()
     stream = client.chat.completions.create(
         model=settings.deepseek_model,
-        messages=build_legal_messages(
-            question,
-            chunks,
-            history,
-            statute_lookup=statute_lookup,
-            case_consult=case_consult,
-        ),
+        messages=build_legal_messages(question, chunks, history),
         temperature=0.2,
         stream=True,
     )
