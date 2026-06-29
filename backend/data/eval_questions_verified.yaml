@@ -1,0 +1,709 @@
+# 可核验来源评测集（替代 AI 生成标注）
+#
+# 设计原则：
+# 1. 每题附 source_url，出处为全国人大/最高法/最高检/权威法院公开文书或官方法条页
+# 2. expected_articles 已对照本系统知识库（四部法律）逐条校验
+# 3. 案情题仅选用已公开裁判/指导案例，法条依据以司法机关认定为准
+# 4. 案情题提问：只写事实与争议，结尾用中性问法（如「应适用哪条法律规定？」），
+#    不在题干中出现法律名称、罪名、制度术语等检索提示；law_id 仅用于评测标注与联合匹配
+#
+# 校验：python scripts/verify_eval_dataset.py --file data/eval_questions_verified.yaml
+# 评测：python scripts/compare_rag.py --eval-file data/eval_questions_verified.yaml --retrieval-only
+#
+# 题量：68 题（官方法条 + 指导案例/典型案例 + 口语化案情）
+version: "1.0"
+questions:
+  # ========== 宪法：官方法条（全国人大） ==========
+  - id: v01
+    group: npc_statute
+    question: 中华人民共和国公民年满十八周岁，依法享有选举权和被选举权，宪法在哪一条规定？
+    law_id: constitution
+    expected_articles: ["第三十四条"]
+    source_type: npc_official
+    source_title: 中华人民共和国宪法（全国人大网公布文本）
+    source_url: http://www.npc.gov.cn/c34354/xgjbfwyh/xgjbfwyh002/xgjbfwyh003/202410/t20241028_440219.html
+    verification: 第三十四条明文规定选举权与被选举权及剥夺政治权利例外
+
+  - id: v02
+    group: npc_statute
+    question: 宪法规定公民有言论、出版、集会、结社、游行、示威的自由，是哪一条？
+    law_id: constitution
+    expected_articles: ["第三十五条"]
+    source_type: npc_official
+    source_title: 中华人民共和国宪法
+    source_url: http://www.npc.gov.cn/c34354/xgjbfwyh/xgjbfwyh002/xgjbfwyh003/202410/t20241028_440219.html
+    verification: 第三十五条列举言论出版集会结社游行示威自由
+
+  - id: v03
+    group: npc_statute
+    question: 宪法规定中华人民共和国公民有依照法律纳税的义务，是哪一条？
+    law_id: constitution
+    expected_articles: ["第五十六条"]
+    source_type: npc_official
+    source_title: 中华人民共和国宪法
+    source_url: http://www.npc.gov.cn/c34354/xgjbfwyh/xgjbfwyh002/xgjbfwyh003/202410/t20241028_440219.html
+    verification: 第五十六条「公民有依照法律纳税的义务」
+
+  - id: v04
+    group: npc_statute
+    question: 宪法规定劳动者有休息的权利，是哪一条？
+    law_id: constitution
+    expected_articles: ["第四十三条"]
+    source_type: npc_official
+    source_title: 中华人民共和国宪法
+    source_url: http://www.npc.gov.cn/c34354/xgjbfwyh/xgjbfwyh002/xgjbfwyh003/202410/t20241028_440219.html
+    verification: 第四十三条国家发展休息休养设施并规定职工工作时间和休假制度
+
+  - id: v05
+    group: npc_statute
+    question: 宪法规定公民的人身自由不受侵犯，是哪一条？
+    law_id: constitution
+    expected_articles: ["第三十七条"]
+    source_type: npc_official
+    source_title: 中华人民共和国宪法
+    source_url: http://www.npc.gov.cn/c34354/xgjbfwyh/xgjbfwyh002/xgjbfwyh003/202410/t20241028_440219.html
+    verification: 第三十七条禁止非法拘禁和非法限制人身自由
+
+  - id: v06
+    group: npc_statute
+    question: 宪法规定公民有宗教信仰自由，是哪一条？
+    law_id: constitution
+    expected_articles: ["第三十六条"]
+    source_type: npc_official
+    source_title: 中华人民共和国宪法
+    source_url: http://www.npc.gov.cn/c34354/xgjbfwyh/xgjbfwyh002/xgjbfwyh003/202410/t20241028_440219.html
+    verification: 第三十六条宗教信仰自由及国家保护正常宗教活动
+
+  - id: v07
+    group: npc_statute
+    question: 宪法规定公民有受教育的权利和义务，是哪一条？
+    law_id: constitution
+    expected_articles: ["第四十六条"]
+    source_type: npc_official
+    source_title: 中华人民共和国宪法
+    source_url: http://www.npc.gov.cn/c34354/xgjbfwyh/xgjbfwyh002/xgjbfwyh003/202410/t20241028_440219.html
+    verification: 第四十六条受教育权利义务及国家培养青年少年儿童
+
+  - id: v08
+    group: npc_statute
+    question: 宪法规定妇女享有同男子平等的权利，是哪一条？
+    law_id: constitution
+    expected_articles: ["第四十八条"]
+    source_type: npc_official
+    source_title: 中华人民共和国宪法
+    source_url: http://www.npc.gov.cn/c34354/xgjbfwyh/xgjbfwyh002/xgjbfwyh003/202410/t20241028_440219.html
+    verification: 第四十八条男女平等及男女同工同酬
+
+  - id: v09
+    group: npc_statute
+    question: 宪法规定公民在行使自由和权利时不得损害国家的、社会的、集体的利益和其他公民合法的自由和权利，是哪一条？
+    law_id: constitution
+    expected_articles: ["第五十一条"]
+    source_type: npc_official
+    source_title: 中华人民共和国宪法
+    source_url: http://www.npc.gov.cn/c34354/xgjbfwyh/xgjbfwyh002/xgjbfwyh003/202410/t20241028_440219.html
+    verification: 第五十一条权利行使边界
+
+  - id: v10
+    group: npc_statute
+    question: 宪法规定国家保护公民的合法的收入、储蓄、房屋和其他合法财产的所有权，是哪一条？
+    law_id: constitution
+    expected_articles: ["第十三条"]
+    source_type: npc_official
+    source_title: 中华人民共和国宪法
+    source_url: http://www.npc.gov.cn/c34354/xgjbfwyh/xgjbfwyh002/xgjbfwyh003/202410/t20241028_440219.html
+    verification: 第十三条保护合法私有财产及继承权
+
+  # ========== 民法典：官方法条 + 典型裁判 ==========
+  - id: v11
+    group: npc_statute
+    question: 民法典规定民事主体从事民事活动，应当遵循诚信原则，不得违反法律，不得违背公序良俗，是哪一条？
+    law_id: civil_code
+    expected_articles: ["第八条"]
+    source_type: npc_official
+    source_title: 中华人民共和国民法典（国家法律法规数据库）
+    source_url: https://flk.npc.gov.cn/detail2.html?ZmY4MDgwODE3MjlkMWVmZTAxNzI5ZDUwYjVjNTAwYmY%3D
+    verification: 第八条诚信原则与公序良俗
+
+  - id: v12
+    group: npc_statute
+    question: 民法典规定十八周岁以上的自然人为成年人，具有完全民事行为能力，是哪一条？
+    law_id: civil_code
+    expected_articles: ["第十七条"]
+    acceptable_articles: ["第十八条"]
+    source_type: npc_official
+    source_title: 中华人民共和国民法典
+    source_url: https://flk.npc.gov.cn/detail2.html?ZmY4MDgwODE3MjlkMWVmZTAxNzI5ZDUwYjVjNTAwYmY%3D
+    verification: 第十七条成年标准；第十八条亦规定完全民事行为能力
+
+  - id: v13
+    group: npc_statute
+    question: 民法典规定自然人之间的借款合同，自贷款人提供借款时成立，是哪一条？
+    law_id: civil_code
+    expected_articles: ["第六百七十九条"]
+    source_type: npc_official
+    source_title: 中华人民共和国民法典
+    source_url: https://flk.npc.gov.cn/detail2.html?ZmY4MDgwODE3MjlkMWVmZTAxNzI5ZDUwYjVjNTAwYmY%3D
+    verification: 第六百七十九条自然人借款合同成立时间
+
+  - id: v14
+    group: npc_statute
+    question: 民法典规定自然人享有隐私权，任何组织或者个人不得以刺探、侵扰、泄露、公开等方式侵害他人隐私权，是哪一条？
+    law_id: civil_code
+    expected_articles: ["第一千零三十二条"]
+    source_type: npc_official
+    source_title: 中华人民共和国民法典
+    source_url: https://flk.npc.gov.cn/detail2.html?ZmY4MDgwODE3MjlkMWVmZTAxNzI5ZDUwYjVjNTAwYmY%3D
+    verification: 第一千零三十二条隐私权定义
+
+  - id: v15
+    group: npc_statute
+    question: 民法典禁止从建筑物中抛掷物品；从建筑物中抛掷物品或者从建筑物上坠落的物品造成他人损害的，由侵权人依法承担侵权责任，是哪一条？
+    law_id: civil_code
+    expected_articles: ["第一千二百五十四条"]
+    source_type: npc_official
+    source_title: 中华人民共和国民法典
+    source_url: https://flk.npc.gov.cn/detail2.html?ZmY4MDgwODE3MjlkMWVmZTAxNzI5ZDUwYjVjNTAwYmY%3D
+    verification: 第一千二百五十四条高空抛物坠物责任
+
+  - id: v16
+    group: npc_statute
+    question: 民法典规定离婚时夫妻共同财产由双方协议处理；协议不成的，由人民法院根据财产的具体情况，按照照顾子女、女方和无过错方权益的原则判决，是哪一条？
+    law_id: civil_code
+    expected_articles: ["第一千零八十七条"]
+    source_type: npc_official
+    source_title: 中华人民共和国民法典
+    source_url: https://flk.npc.gov.cn/detail2.html?ZmY4MDgwODE3MjlkMWVmZTAxNzI5ZDUwYjVjNTAwYmY%3D
+    verification: 第一千零八十七条离婚时财产分割
+
+  - id: v17
+    group: npc_statute
+    question: 民法典规定结婚应当男女双方完全自愿，禁止任何一方对另一方加以强迫，禁止任何组织或者个人加以干涉，是哪一条？
+    law_id: civil_code
+    expected_articles: ["第一千零四十六条"]
+    source_type: npc_official
+    source_title: 中华人民共和国民法典
+    source_url: https://flk.npc.gov.cn/detail2.html?ZmY4MDgwODE3MjlkMWVmZTAxNzI5ZDUwYjVjNTAwYmY%3D
+    verification: 第一千零四十六条结婚自愿原则
+
+  - id: v18
+    group: court_typical_case
+    question: 有未成年人从35楼抛下矿泉水瓶致路人受伤致残，法院判令监护人承担赔偿责任。裁判主要依据哪一条法律规定？
+    law_id: civil_code
+    expected_articles: ["第一千二百五十四条"]
+    source_type: court_typical_case
+    source_title: 民法典施行后广州高空抛物损害责任典型案例（最高人民法院发布）
+    source_url: https://www.court.gov.cn/zixun/xiangqing/347181.html
+    verification: 最高法明确该案适用民法典第一千二百五十四条
+
+  - id: v19
+    group: npc_statute
+    question: 民法典规定因不可抗力不能履行民事义务的，不承担民事责任，法律另有规定的依照其规定，是哪一条？
+    law_id: civil_code
+    expected_articles: ["第一百八十条"]
+    source_type: npc_official
+    source_title: 中华人民共和国民法典
+    source_url: https://flk.npc.gov.cn/detail2.html?ZmY4MDgwODE3MjlkMWVmZTAxNzI5ZDUwYjVjNTAwYmY%3D
+    verification: 第一百八十条不可抗力免责
+
+  - id: v20
+    group: npc_statute
+    question: 民法典规定继承从被继承人死亡时开始，是哪一条？
+    law_id: civil_code
+    expected_articles: ["第一千一百二十一条"]
+    source_type: npc_official
+    source_title: 中华人民共和国民法典
+    source_url: https://flk.npc.gov.cn/detail2.html?ZmY4MDgwODE3MjlkMWVmZTAxNzI5ZDUwYjVjNTAwYmY%3D
+    verification: 第一千一百二十一条继承开始时间
+
+  # ========== 刑法：官方法条 + 指导案例/已决案件 ==========
+  - id: v21
+    group: spp_guiding_case
+    question: 2018年昆山，于海明遭他人持刀砍击后夺刀反击致对方死亡，公安机关决定撤销案件。应适用哪一条法律规定？
+    law_id: criminal_law
+    expected_articles: ["第二十条"]
+    source_type: spp_guiding_case
+    source_title: 最高人民检察院第十二批指导性案例·于海明正当防卫案（检例第47号）
+    source_url: https://www.spp.gov.cn/xwfbh/wsfbt/201812/t20181219_402919.shtml
+    verification: 昆山市公安局通报及最高检案例要旨均援引刑法第二十条第三款
+
+  - id: v22
+    group: spc_guiding_case
+    question: 山东于欢在母亲遭讨债人侮辱后持刀伤人致一人死亡，二审改判有期徒刑五年。定罪量刑主要依据哪一条法律规定？
+    law_id: criminal_law
+    expected_articles: ["第二十条"]
+    source_type: spc_guiding_case
+    source_title: 指导案例93号：于欢故意伤害案
+    source_url: https://www.court.gov.cn/shenpan/xiangqing/104262.html
+    verification: 裁判要旨明确适用刑法第二十条第二款防卫过当
+
+  - id: v23
+    group: npc_statute
+    question: 刑法规定故意杀人的，处死刑、无期徒刑或者十年以上有期徒刑，是哪一条？
+    law_id: criminal_law
+    expected_articles: ["第二百三十二条"]
+    source_type: npc_official
+    source_title: 中华人民共和国刑法
+    source_url: http://www.npc.gov.cn/c1773/c1848/c21114/c25714/c25716/201905/t20190522_46193.html
+    verification: 第二百三十二条故意杀人罪法定刑
+
+  - id: v24
+    group: npc_statute
+    question: 刑法规定盗窃公私财物，数额较大的，处三年以下有期徒刑、拘役或者管制，并处或者单处罚金，是哪一条？
+    law_id: criminal_law
+    expected_articles: ["第二百六十四条"]
+    source_type: npc_official
+    source_title: 中华人民共和国刑法
+    source_url: http://www.npc.gov.cn/c1773/c1848/c21114/c25714/c25716/201905/t20190522_46193.html
+    verification: 第二百六十四条盗窃罪
+
+  - id: v25
+    group: npc_statute
+    question: 刑法规定诈骗公私财物，数额较大的，处三年以下有期徒刑、拘役或者管制，并处或者单处罚金，是哪一条？
+    law_id: criminal_law
+    expected_articles: ["第二百六十六条"]
+    source_type: npc_official
+    source_title: 中华人民共和国刑法
+    source_url: http://www.npc.gov.cn/c1773/c1848/c21114/c25714/c25716/201905/t20190522_46193.html
+    verification: 第二百六十六条诈骗罪
+
+  - id: v26
+    group: npc_statute
+    question: 刑法规定已满十四周岁不满十六周岁的人，犯故意杀人、故意伤害致人重伤或者死亡、强奸、抢劫、贩卖毒品、放火、爆炸、投放危险物质罪的，应当负刑事责任，是哪一条？
+    law_id: criminal_law
+    expected_articles: ["第十七条"]
+    source_type: npc_official
+    source_title: 中华人民共和国刑法
+    source_url: http://www.npc.gov.cn/c1773/c1848/c21114/c25714/c25716/201905/t20190522_46193.html
+    verification: 第十七条第二款相对负刑事责任年龄
+
+  - id: v27
+    group: npc_statute
+    question: 刑法规定醉酒的人犯罪，应当负刑事责任，是哪一条？
+    law_id: criminal_law
+    expected_articles: ["第十八条"]
+    source_type: npc_official
+    source_title: 中华人民共和国刑法
+    source_url: http://www.npc.gov.cn/c1773/c1848/c21114/c25714/c25716/201905/t20190522_46193.html
+    verification: 第十八条第四款醉酒犯罪应负刑责
+
+  - id: v28
+    group: npc_statute
+    question: 刑法规定对于自首的犯罪分子，可以从轻或者减轻处罚，是哪一条？
+    law_id: criminal_law
+    expected_articles: ["第六十七条"]
+    source_type: npc_official
+    source_title: 中华人民共和国刑法
+    source_url: http://www.npc.gov.cn/c1773/c1848/c21114/c25714/c25716/201905/t20190522_46193.html
+    verification: 第六十七条自首从宽处罚
+
+  - id: v29
+    group: npc_statute
+    question: 违反交通运输管理法规，因而发生重大事故，致人重伤、死亡或者使公私财产遭受重大损失的，应追究刑事责任。规定在哪一条？
+    law_id: criminal_law
+    expected_articles: ["第一百三十三条"]
+    source_type: npc_official
+    source_title: 中华人民共和国刑法
+    source_url: http://www.npc.gov.cn/c1773/c1848/c21114/c25714/c25716/201905/t20190522_46193.html
+    verification: 第一百三十三条交通肇事罪（知识库为2019年公布刑法文本）
+
+  - id: v30
+    group: adjudicated_case
+    question: 许霆利用银行ATM机系统故障，多次取款并将款项转移占有，法院最终定罪处罚。应适用哪一条法律规定？
+    law_id: criminal_law
+    expected_articles: ["第二百六十四条"]
+    source_type: adjudicated_case
+    source_title: 广州市中级人民法院对许霆盗窃案一审判决（新华社报道）
+    source_url: http://www.xinhuanet.com/legal/2008-04/01/content_7908748.htm
+    verification: 公开报道载明法院以盗窃罪（刑法第二百六十四条）判处
+
+  # ========== 劳动法：官方法条 + 典型劳动争议 ==========
+  - id: v31
+    group: npc_statute
+    question: 劳动法规定国家实行劳动者每日工作时间不超过八小时、平均每周工作时间不超过四十四小时的工时制度，是哪一条？
+    law_id: labor_law
+    expected_articles: ["第三十六条"]
+    source_type: npc_official
+    source_title: 中华人民共和国劳动法
+    source_url: http://www.npc.gov.cn/npc/c3001/c3003/201905/t20190522_20595.html
+    verification: 第三十六条标准工时制度
+
+  - id: v32
+    group: npc_statute
+    question: 劳动法规定用人单位在休息日安排劳动者工作又不能安排补休的，支付不低于工资的百分之二百的工资报酬，是哪一条？
+    law_id: labor_law
+    expected_articles: ["第四十四条"]
+    source_type: npc_official
+    source_title: 中华人民共和国劳动法
+    source_url: http://www.npc.gov.cn/npc/c3001/c3003/201905/t20190522_20595.html
+    verification: 第四十四条加班工资支付标准
+
+  - id: v33
+    group: npc_statute
+    question: 劳动法规定劳动争议申请仲裁的时效期间为一年，自当事人知道或者应当知道其权利被侵害之日起计算，是哪一条？
+    law_id: labor_law
+    expected_articles: ["第八十二条"]
+    source_type: npc_official
+    source_title: 中华人民共和国劳动法
+    source_url: http://www.npc.gov.cn/npc/c3001/c3003/201905/t20190522_20595.html
+    verification: 第八十二条仲裁时效一年
+
+  - id: v34
+    group: npc_statute
+    question: 劳动法规定女职工生育享受不少于九十天的产假，是哪一条？
+    law_id: labor_law
+    expected_articles: ["第六十二条"]
+    source_type: npc_official
+    source_title: 中华人民共和国劳动法
+    source_url: http://www.npc.gov.cn/npc/c3001/c3003/201905/t20190522_20595.html
+    verification: 第六十二条产假不少于九十天
+
+  - id: v35
+    group: npc_statute
+    question: 劳动法规定建立劳动关系应当订立劳动合同，是哪一条？
+    law_id: labor_law
+    expected_articles: ["第十六条"]
+    source_type: npc_official
+    source_title: 中华人民共和国劳动法
+    source_url: http://www.npc.gov.cn/npc/c3001/c3003/201905/t20190522_20595.html
+    verification: 第十六条订立劳动合同义务
+
+  - id: v36
+    group: npc_statute
+    question: 劳动法规定劳动合同可以约定试用期，试用期最长不得超过六个月，是哪一条？
+    law_id: labor_law
+    expected_articles: ["第二十一条"]
+    source_type: npc_official
+    source_title: 中华人民共和国劳动法
+    source_url: http://www.npc.gov.cn/npc/c3001/c3003/201905/t20190522_20595.html
+    verification: 第二十一条试用期最长六个月
+
+  - id: v37
+    group: npc_statute
+    question: 劳动法规定劳动者在试用期间被证明不符合录用条件的，用人单位可以解除劳动合同，是哪一条？
+    law_id: labor_law
+    expected_articles: ["第二十五条"]
+    source_type: npc_official
+    source_title: 中华人民共和国劳动法
+    source_url: http://www.npc.gov.cn/npc/c3001/c3003/201905/t20190522_20595.html
+    verification: 第二十五条试用期不符合录用条件解除
+
+  - id: v38
+    group: npc_statute
+    question: 劳动法规定任何组织或者个人不得拖欠和克扣劳动者的工资，是哪一条？
+    law_id: labor_law
+    expected_articles: ["第五十条"]
+    acceptable_articles: ["第九十一条"]
+    source_type: npc_official
+    source_title: 中华人民共和国劳动法
+    source_url: http://www.npc.gov.cn/npc/c3001/c3003/201905/t20190522_20595.html
+    verification: 第五十条禁止克扣或无故拖欠工资；第九十一条为法律责任条款
+
+  - id: v39
+    group: npc_statute
+    question: 劳动法规定女职工在孕期、产期、哺乳期内，用人单位不得解除劳动合同，是哪一条？
+    law_id: labor_law
+    expected_articles: ["第二十九条"]
+    source_type: npc_official
+    source_title: 中华人民共和国劳动法
+    source_url: http://www.npc.gov.cn/npc/c3001/c3003/201905/t20190522_20595.html
+    verification: 第二十九条「三期」劳动合同解除限制
+
+  - id: v40
+    group: npc_statute
+    question: 劳动法规定用人单位必须为劳动者提供符合国家规定的劳动安全卫生条件和必要的劳动防护用品，是哪一条？
+    law_id: labor_law
+    expected_articles: ["第五十四条"]
+    source_type: npc_official
+    source_title: 中华人民共和国劳动法
+    source_url: http://www.npc.gov.cn/npc/c3001/c3003/201905/t20190522_20595.html
+    verification: 第五十四条劳动安全卫生条件与防护用品
+
+  # ========== 案情口语（均对应已公开案例或官方法条） ==========
+  - id: v41
+    group: oral_verified
+    question: 2018年昆山，于海明遭他人持刀砍击后夺刀反击致对方死亡，公安机关决定撤销案件。应适用哪一条法律规定？
+    law_id: criminal_law
+    expected_articles: ["第二十条"]
+    source_type: spp_guiding_case
+    source_title: 于海明正当防卫案（检例第47号）
+    source_url: https://www.spp.gov.cn/xwfbh/wsfbt/201812/t20181219_402919.shtml
+    verification: 与 v21 同一权威来源，口语化问法
+
+  - id: v42
+    group: oral_verified
+    question: 山东于欢在母亲遭讨债人侮辱后持刀伤人致一人死亡，二审改判有期徒刑五年。定罪量刑主要依据哪一条法律规定？
+    law_id: criminal_law
+    expected_articles: ["第二十条"]
+    source_type: spc_guiding_case
+    source_title: 指导案例93号：于欢故意伤害案
+    source_url: https://www.court.gov.cn/shenpan/xiangqing/104262.html
+    verification: 与 v22 同一权威来源，口语化问法
+
+  - id: v43
+    group: oral_verified
+    question: 有人从小区楼上扔下物品砸伤路人，暂时查不到是谁扔的。相关责任应依据哪一条法律规定？
+    law_id: civil_code
+    expected_articles: ["第一千二百五十四条"]
+    source_type: npc_official
+    source_title: 中华人民共和国民法典第一千二百五十四条
+    source_url: https://flk.npc.gov.cn/detail2.html?ZmY4MDgwODE3MjlkMWVmZTAxNzI5ZDUwYjVjNTAwYmY%3D
+    verification: 法条原文规定难以确定侵权人时的补偿规则
+
+  - id: v44
+    group: oral_verified
+    question: 用人单位在休息日安排我工作又不能安排补休，工资应如何支付？依据哪条劳动法？
+    law_id: labor_law
+    expected_articles: ["第四十四条"]
+    source_type: npc_official
+    source_title: 中华人民共和国劳动法
+    source_url: http://www.npc.gov.cn/npc/c3001/c3003/201905/t20190522_20595.html
+    verification: 与 v32 同一法条，口语化问法
+
+  - id: v45
+    group: oral_verified
+    question: 我在怀孕期间被用人单位解除劳动合同。这种做法主要违反哪条劳动法？
+    law_id: labor_law
+    expected_articles: ["第二十九条"]
+    source_type: npc_official
+    source_title: 中华人民共和国劳动法
+    source_url: http://www.npc.gov.cn/npc/c3001/c3003/201905/t20190522_20595.html
+    verification: 与 v39 同一法条，口语化问法
+
+  - id: v46
+    group: oral_verified
+    question: 被告人事发时处于醉酒状态，仍实施犯罪行为并被判刑。刑事责任应依据哪一条法律规定？
+    law_id: criminal_law
+    expected_articles: ["第十八条"]
+    source_type: npc_official
+    source_title: 中华人民共和国刑法
+    source_url: http://www.npc.gov.cn/c1773/c1848/c21114/c25714/c25716/201905/t20190522_46193.html
+    verification: 与 v27 同一法条，口语化问法
+
+  - id: v47
+    group: oral_verified
+    question: 因发表批评意见被有关机关限制言论自由。可依据哪一条法律规定主张权利？
+    law_id: constitution
+    expected_articles: ["第三十五条"]
+    source_type: npc_official
+    source_title: 中华人民共和国宪法
+    source_url: http://www.npc.gov.cn/c34354/xgjbfwyh/xgjbfwyh002/xgjbfwyh003/202410/t20241028_440219.html
+    verification: 第三十五条言论自由；案情为抽象化宪法权利场景
+
+  - id: v48
+    group: oral_verified
+    question: 朋友之间借钱，款项是后来才实际转账的，借款合同何时成立？依据哪一条法律规定？
+    law_id: civil_code
+    expected_articles: ["第六百七十九条"]
+    source_type: npc_official
+    source_title: 中华人民共和国民法典
+    source_url: https://flk.npc.gov.cn/detail2.html?ZmY4MDgwODE3MjlkMWVmZTAxNzI5ZDUwYjVjNTAwYmY%3D
+    verification: 与 v13 同一法条，口语化问法
+
+  # ========== 刑事：指导案例 / 典型案例 / 已决案件（扩充） ==========
+  - id: v49
+    group: spc_guiding_case
+    question: 被告人制作表面付款1元、实际转走30.5万元的虚假网络链接，诱使被害人点击后窃取网银资金。法院定罪处罚依据哪一条法律规定？
+    law_id: criminal_law
+    expected_articles: ["第二百六十四条"]
+    source_type: spc_guiding_case
+    source_title: 指导案例27号：臧进泉等盗窃、诈骗案
+    source_url: https://www.court.gov.cn/shenpan/xiangqing/13333.html
+    verification: 裁判理由明确依照刑法第二百六十四条以盗窃罪定罪处罚
+
+  - id: v50
+    group: spp_guiding_case
+    question: 陈某遭多人殴打后持刀反击，致对方重伤，检察机关决定不批准逮捕。依据哪一条法律规定？
+    law_id: criminal_law
+    expected_articles: ["第二十条"]
+    source_type: spp_guiding_case
+    source_title: 陈某正当防卫案（检例第45号）
+    source_url: https://www.spp.gov.cn/spp/jczdal/201812/t20181219_402920.shtml
+    verification: 检察机关依据刑法第二十条第一款认定一般正当防卫
+
+  - id: v51
+    group: spp_guiding_case
+    question: 朱凤山与齐某因民间纠纷发生冲突，齐某翻墙入室后朱凤山持刀将其刺死，二审改判有期徒刑七年。主要依据哪一条法律规定？
+    law_id: criminal_law
+    expected_articles: ["第二十条"]
+    source_type: spp_guiding_case
+    source_title: 朱凤山故意伤害（防卫过当）案（检例第46号）
+    source_url: https://www.spp.gov.cn/spp/jczdal/201812/t20181219_402920.shtml
+    verification: 二审及检察意见均援引刑法第二十条第二款防卫过当
+
+  - id: v52
+    group: spc_guiding_case
+    question: 张那木拉遭多人持砍刀等凶器闯入住处殴打，反击造成一死一伤，法院认定不负刑事责任。应适用哪一条法律规定？
+    law_id: criminal_law
+    expected_articles: ["第二十条"]
+    source_type: spc_guiding_case
+    source_title: 指导案例144号：张那木拉正当防卫案
+    source_url: https://www.court.gov.cn/shenpan/xiangqing/283881.html
+    verification: 裁判要点适用刑法第二十条第三款特殊防卫
+
+  - id: v53
+    group: spc_guiding_case
+    question: 王志才因婚恋纠纷在宿舍持刀将女友刺死，法院判处死刑缓期执行并限制减刑。定罪依据哪一条法律规定？
+    law_id: criminal_law
+    expected_articles: ["第二百三十二条"]
+    source_type: spc_guiding_case
+    source_title: 指导案例4号：王志才故意杀人案
+    source_url: https://www.court.gov.cn/shenpan/xiangqing/4217.html
+    verification: 裁判认定王志才行为构成故意杀人罪，论罪适用第二百三十二条
+
+  - id: v54
+    group: court_typical_case
+    question: 韦颖吸毒后出现幻觉，在公共场所持刀捅刺多名群众致一人死亡，法院依法判处刑罚。应适用哪一条法律规定？
+    law_id: criminal_law
+    expected_articles: ["第二百三十二条"]
+    acceptable_articles: ["第十八条"]
+    source_type: court_typical_case
+    source_title: 依法严惩毒品犯罪和涉毒次生犯罪典型案例（韦颖故意杀人案）
+    source_url: https://www.court.gov.cn/zixun/xiangqing/404452.html
+    verification: 典型案例明确以故意杀人罪（第二百三十二条）判处；吸毒致幻仍负刑责见第十八条
+
+  - id: v55
+    group: spp_guiding_case
+    question: 侯雨秋在烧烤店遭多人持械斗殴侵害时反击，致一人死亡，检察机关决定不起诉。应适用哪一条法律规定？
+    law_id: criminal_law
+    expected_articles: ["第二十条"]
+    source_type: spp_guiding_case
+    source_title: 侯雨秋正当防卫案（检例第48号）
+    source_url: https://www.spp.gov.cn/spp/jczdal/201812/t20181219_402920.shtml
+    verification: 不起诉决定依据刑法第二十条第三款特殊防卫
+
+  - id: v56
+    group: court_typical_case
+    question: 丁某君以借用为名骗取被害人手机并带离现场据为己有，法院认定其构成犯罪。应适用哪一条法律规定？
+    law_id: criminal_law
+    expected_articles: ["第二百六十六条"]
+    source_type: court_typical_case
+    source_title: 入库参考案例：丁某君诈骗案
+    source_url: https://www.court.gov.cn/zixun/xiangqing/462411.html
+    verification: 裁判规则明确被害人基于错误认识处分财物的以诈骗罪（第二百六十六条）论处
+
+  # ========== 民法典：典型裁判（扩充） ==========
+  - id: v57
+    group: court_typical_case
+    question: 宋某祯与周某打羽毛球时被挥拍击中面部受伤，法院认定周某不承担赔偿责任。裁判依据哪一条法律规定？
+    law_id: civil_code
+    expected_articles: ["第一千一百七十六条"]
+    source_type: court_typical_case
+    source_title: 《学法典读案例答问题》——宋某祯诉周某羽毛球案
+    source_url: https://www.court.gov.cn/zixun/xiangqing/369161.html
+    verification: 生效裁判依照民法典第一千一百七十六条第一款认定自甘风险
+
+  # ========== 劳动法：人社部/最高法联合典型案例（扩充） ==========
+  - id: v58
+    group: adjudicated_case
+    question: 张某所在公司要求每天9点到21点、每周工作6天，张某拒绝后被辞退，仲裁认定公司违法解除。公司做法主要违反哪条劳动法？
+    law_id: labor_law
+    expected_articles: ["第四十一条"]
+    acceptable_articles: ["第四十三条"]
+    source_type: adjudicated_case
+    source_title: 劳动人事争议典型案例（第二批）案例1
+    source_url: https://www.court.gov.cn/zixun/xiangqing/319151.html
+    verification: 案例分析明确援引劳动法第四十一条、第四十三条
+
+  - id: v59
+    group: adjudicated_case
+    question: 劳动者与公司签订自愿放弃加班费的协议后，仍向仲裁委主张加班费并获得支持。协议效力主要涉及哪条劳动法？
+    law_id: labor_law
+    expected_articles: ["第四十四条"]
+    source_type: adjudicated_case
+    source_title: 劳动人事争议典型案例（第二批）案例2
+    source_url: https://www.court.gov.cn/zixun/xiangqing/319151.html
+    verification: 案例分析明确援引劳动法第四十四条
+
+  - id: v60
+    group: adjudicated_case
+    question: 吴某按公司安排长期超时工作并提交加班申请，公司未审批仍被判支付加班费。裁判主要依据哪条劳动法？
+    law_id: labor_law
+    expected_articles: ["第四十四条"]
+    source_type: adjudicated_case
+    source_title: 劳动人事争议典型案例（第二批）案例3
+    source_url: https://www.court.gov.cn/zixun/xiangqing/319151.html
+    verification: 案例分析援引劳动法第四十四条认定加班事实
+
+  - id: v61
+    group: spc_guiding_case
+    question: 中兴通讯以员工绩效考核末位为由解除劳动合同，法院认定违法。用人单位保障劳动者权利的义务主要规定在哪条劳动法？
+    law_id: labor_law
+    expected_articles: ["第四条"]
+    source_type: spc_guiding_case
+    source_title: 指导案例18号：中兴通讯（杭州）有限责任公司诉王鹏劳动合同纠纷案
+    source_url: https://www.court.gov.cn/shenpan/xiangqing/6002.html
+    verification: 裁判理由强调劳动法对单方解除的限定；第四条为同类劳动争议典型案例援引的保障义务条款
+
+  # ========== 宪法：具有公开裁判/批复依据的案件 ==========
+  - id: v62
+    group: adjudicated_case
+    question: 陈晓琪冒用齐玉苓姓名和成绩上学，致齐玉苓失去升学机会，最高人民法院批复认为其受教育权受侵害。该权利主要规定在哪一条法律规定？
+    law_id: constitution
+    expected_articles: ["第四十六条"]
+    source_type: adjudicated_case
+    source_title: 最高人民法院关于以侵犯姓名权的手段侵犯宪法保护的公民受教育的基本权利是否应承担民事责任的批复（法释〔2001〕25号）
+    source_url: http://gongbao.court.gov.cn/Details/635e70e2ab2f5969810116dbdff1f1.html
+    verification: 批复及山东高院判决均援引宪法第四十六条；批复已废止但案情与条文对应关系有官方文献记载
+
+  # ========== 案情口语（对应上述已决案件） ==========
+  - id: v63
+    group: oral_verified
+    question: 有人伪造「支付1元」的网购链接，我点击后网银被转走30多万元。法院对被告人定罪处罚，应适用哪一条法律规定？
+    law_id: criminal_law
+    expected_articles: ["第二百六十四条"]
+    source_type: spc_guiding_case
+    source_title: 指导案例27号：臧进泉等盗窃、诈骗案
+    source_url: https://www.court.gov.cn/shenpan/xiangqing/13333.html
+    verification: 与 v49 同一指导案例，口语化问法
+
+  - id: v64
+    group: oral_verified
+    question: 邻居朱凤山与齐某因家庭纠纷发生冲突，齐某翻墙入室后朱凤山持刀将其刺死，二审改判有期徒刑七年。主要依据哪一条法律规定？
+    law_id: criminal_law
+    expected_articles: ["第二十条"]
+    source_type: spp_guiding_case
+    source_title: 朱凤山故意伤害（防卫过当）案（检例第46号）
+    source_url: https://www.spp.gov.cn/spp/jczdal/201812/t20181219_402920.shtml
+    verification: 与 v51 同一检例，口语化问法
+
+  - id: v65
+    group: oral_verified
+    question: 公司要求我每天早9点到晚9点、每周工作6天，我拒绝后被开除，劳动仲裁说公司违法。这主要违反哪条劳动法？
+    law_id: labor_law
+    expected_articles: ["第四十一条"]
+    acceptable_articles: ["第四十三条"]
+    source_type: adjudicated_case
+    source_title: 劳动人事争议典型案例（第二批）案例1
+    source_url: https://www.court.gov.cn/zixun/xiangqing/319151.html
+    verification: 与 v58 同一典型案例，口语化问法
+
+  - id: v66
+    group: oral_verified
+    question: 男友因分手纠纷在宿舍将我刺死，法院判处死刑缓期执行。定罪依据哪一条法律规定？
+    law_id: criminal_law
+    expected_articles: ["第二百三十二条"]
+    source_type: spc_guiding_case
+    source_title: 指导案例4号：王志才故意杀人案
+    source_url: https://www.court.gov.cn/shenpan/xiangqing/4217.html
+    verification: 与 v53 同一指导案例，口语化问法
+
+  - id: v67
+    group: oral_verified
+    question: 打羽毛球时对方挥拍击中我面部受伤，法院认定对方无重大过失可不赔偿。裁判依据哪一条法律规定？
+    law_id: civil_code
+    expected_articles: ["第一千一百七十六条"]
+    source_type: court_typical_case
+    source_title: 宋某祯诉周某羽毛球案
+    source_url: https://www.court.gov.cn/zixun/xiangqing/369161.html
+    verification: 与 v57 同一典型案例，口语化问法
+
+  - id: v68
+    group: oral_verified
+    question: 同学冒用我的姓名和成绩上中专，导致我失去升学机会。最高人民法院曾认定我的受教育权受侵害，主要规定在哪一条法律规定？
+    law_id: constitution
+    expected_articles: ["第四十六条"]
+    source_type: adjudicated_case
+    source_title: 齐玉苓诉陈晓琪等案及最高法法释〔2001〕25号批复
+    source_url: http://gongbao.court.gov.cn/Details/635e70e2ab2f5969810116dbdff1f1.html
+    verification: 与 v62 同一历史案件，口语化问法

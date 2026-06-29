@@ -1,0 +1,361 @@
+[
+  {
+    "id": "v32",
+    "question": "劳动法规定用人单位在休息日安排劳动者工作又不能安排补休的，支付不低于工资的百分之二百的工资报酬，是哪一条？",
+    "expected": [
+      "第四十四条"
+    ],
+    "acceptable": null,
+    "law_id": "labor_law",
+    "article_lookup": false,
+    "query_type": "case",
+    "rewrite_source": "two_stage",
+    "elements": {
+      "domains": [
+        "劳动法"
+      ],
+      "topics": [
+        "休息日加班",
+        "加班工资"
+      ],
+      "acts": [],
+      "rights": [],
+      "legal_concepts": [
+        "加班工资",
+        "休息日工作"
+      ],
+      "query_keywords": [
+        "休息日加班",
+        "加班工资",
+        "百分之二百",
+        "劳动法",
+        "工资报酬"
+      ]
+    },
+    "rewrite_q": "休息日加班 加班工资 百分之二百 劳动法",
+    "concat_q": "检索意图：休息日加班 加班工资 百分之二百 劳动法\n案情：劳动法规定用人单位在休息日安排劳动者工作又不能安排补休的，支付不低于工资的百分之二百的工资报酬，是哪一条？",
+    "inferred_law_id": "labor_law",
+    "domain_confidence": 1.0
+  },
+  {
+    "id": "v41",
+    "question": "2018年昆山，于海明遭他人持刀砍击后夺刀反击致对方死亡，公安机关决定撤销案件。应适用哪一条法律规定？",
+    "expected": [
+      "第二十条"
+    ],
+    "acceptable": null,
+    "law_id": "criminal_law",
+    "article_lookup": false,
+    "query_type": "case",
+    "rewrite_source": "two_stage",
+    "elements": {
+      "domains": [
+        "刑法"
+      ],
+      "topics": [
+        "正当防卫",
+        "特殊防卫"
+      ],
+      "acts": [
+        "正当防卫"
+      ],
+      "rights": [],
+      "legal_concepts": [
+        "正当防卫",
+        "特殊防卫",
+        "撤销案件"
+      ],
+      "query_keywords": [
+        "正当防卫",
+        "特殊防卫",
+        "刑法",
+        "撤销案件",
+        "防卫过当"
+      ]
+    },
+    "rewrite_q": "正当防卫 特殊防卫 刑法 撤销案件",
+    "concat_q": "检索意图：正当防卫 特殊防卫 刑法 撤销案件\n案情：2018年昆山，于海明遭他人持刀砍击后夺刀反击致对方死亡，公安机关决定撤销案件。应适用哪一条法律规定？",
+    "inferred_law_id": "criminal_law",
+    "domain_confidence": 1.0
+  },
+  {
+    "id": "v59",
+    "question": "劳动者与公司签订自愿放弃加班费的协议后，仍向仲裁委主张加班费并获得支持。协议效力主要涉及哪条劳动法？",
+    "expected": [
+      "第四十四条"
+    ],
+    "acceptable": null,
+    "law_id": "labor_law",
+    "article_lookup": false,
+    "query_type": "case",
+    "rewrite_source": "two_stage",
+    "elements": {
+      "domains": [
+        "劳动法"
+      ],
+      "topics": [
+        "加班费",
+        "协议效力"
+      ],
+      "acts": [],
+      "rights": [],
+      "legal_concepts": [
+        "自愿放弃加班费协议",
+        "劳动仲裁"
+      ],
+      "query_keywords": [
+        "加班费",
+        "自愿放弃",
+        "协议效力",
+        "劳动法",
+        "劳动仲裁"
+      ]
+    },
+    "rewrite_q": "加班费 自愿放弃 协议效力 劳动法",
+    "concat_q": "检索意图：加班费 自愿放弃 协议效力 劳动法\n案情：劳动者与公司签订自愿放弃加班费的协议后，仍向仲裁委主张加班费并获得支持。协议效力主要涉及哪条劳动法？",
+    "inferred_law_id": "labor_law",
+    "domain_confidence": 1.0
+  },
+  {
+    "id": "v62",
+    "question": "陈晓琪冒用齐玉苓姓名和成绩上学，致齐玉苓失去升学机会，最高人民法院批复认为其受教育权受侵害。该权利主要规定在哪一条法律规定？",
+    "expected": [
+      "第四十六条"
+    ],
+    "acceptable": null,
+    "law_id": "constitution",
+    "article_lookup": false,
+    "query_type": "case",
+    "rewrite_source": "two_stage",
+    "elements": {
+      "domains": [
+        "宪法"
+      ],
+      "topics": [
+        "受教育权",
+        "姓名冒用"
+      ],
+      "acts": [],
+      "rights": [
+        "受教育权"
+      ],
+      "legal_concepts": [
+        "受教育权侵害"
+      ],
+      "query_keywords": [
+        "受教育权",
+        "宪法",
+        "姓名权",
+        "冒用",
+        "升学机会"
+      ]
+    },
+    "rewrite_q": "受教育权 宪法 姓名权 冒用",
+    "concat_q": "检索意图：受教育权 宪法 姓名权 冒用\n案情：陈晓琪冒用齐玉苓姓名和成绩上学，致齐玉苓失去升学机会，最高人民法院批复认为其受教育权受侵害。该权利主要规定在哪一条法律规定？",
+    "inferred_law_id": "constitution",
+    "domain_confidence": 1.0
+  },
+  {
+    "id": "v68",
+    "question": "同学冒用我的姓名和成绩上中专，导致我失去升学机会。最高人民法院曾认定我的受教育权受侵害，主要规定在哪一条法律规定？",
+    "expected": [
+      "第四十六条"
+    ],
+    "acceptable": null,
+    "law_id": "constitution",
+    "article_lookup": false,
+    "query_type": "case",
+    "rewrite_source": "two_stage",
+    "elements": {
+      "domains": [
+        "宪法"
+      ],
+      "topics": [
+        "冒用姓名",
+        "受教育权"
+      ],
+      "acts": [],
+      "rights": [
+        "受教育权",
+        "姓名权"
+      ],
+      "legal_concepts": [
+        "受教育权侵害"
+      ],
+      "query_keywords": [
+        "受教育权",
+        "姓名权",
+        "冒用",
+        "宪法",
+        "最高人民法院"
+      ]
+    },
+    "rewrite_q": "受教育权 姓名权 冒用 宪法",
+    "concat_q": "检索意图：受教育权 姓名权 冒用 宪法\n案情：同学冒用我的姓名和成绩上中专，导致我失去升学机会。最高人民法院曾认定我的受教育权受侵害，主要规定在哪一条法律规定？",
+    "inferred_law_id": "constitution",
+    "domain_confidence": 1.0
+  },
+  {
+    "id": "v25",
+    "question": "刑法规定诈骗公私财物，数额较大的，处三年以下有期徒刑、拘役或者管制，并处或者单处罚金，是哪一条？",
+    "expected": [
+      "第二百六十六条"
+    ],
+    "acceptable": null,
+    "law_id": "criminal_law",
+    "article_lookup": false,
+    "query_type": "concept",
+    "rewrite_source": "two_stage",
+    "elements": {
+      "domains": [
+        "刑法"
+      ],
+      "topics": [
+        "诈骗"
+      ],
+      "acts": [
+        "诈骗"
+      ],
+      "rights": [],
+      "legal_concepts": [
+        "诈骗罪",
+        "数额较大"
+      ],
+      "query_keywords": [
+        "诈骗罪",
+        "数额较大",
+        "刑法",
+        "刑罚"
+      ]
+    },
+    "rewrite_q": "诈骗罪 数额较大 刑法 刑罚",
+    "concat_q": "检索意图：诈骗罪 数额较大 刑法 刑罚\n案情：刑法规定诈骗公私财物，数额较大的，处三年以下有期徒刑、拘役或者管制，并处或者单处罚金，是哪一条？",
+    "inferred_law_id": "criminal_law",
+    "domain_confidence": 1.0
+  },
+  {
+    "id": "v58",
+    "question": "张某所在公司要求每天9点到21点、每周工作6天，张某拒绝后被辞退，仲裁认定公司违法解除。公司做法主要违反哪条劳动法？",
+    "expected": [
+      "第四十一条"
+    ],
+    "acceptable": [
+      "第四十三条"
+    ],
+    "law_id": "labor_law",
+    "article_lookup": false,
+    "query_type": "case",
+    "rewrite_source": "two_stage",
+    "elements": {
+      "domains": [
+        "劳动法"
+      ],
+      "topics": [
+        "违法解除",
+        "加班",
+        "工作时间"
+      ],
+      "acts": [],
+      "rights": [],
+      "legal_concepts": [
+        "违法解除劳动合同",
+        "加班时长",
+        "休息权"
+      ],
+      "query_keywords": [
+        "违法解除",
+        "加班",
+        "工作时间",
+        "劳动法",
+        "休息权"
+      ]
+    },
+    "rewrite_q": "违法解除 加班 工作时间 劳动法",
+    "concat_q": "检索意图：违法解除 加班 工作时间 劳动法\n案情：张某所在公司要求每天9点到21点、每周工作6天，张某拒绝后被辞退，仲裁认定公司违法解除。公司做法主要违反哪条劳动法？",
+    "inferred_law_id": "labor_law",
+    "domain_confidence": 1.0
+  },
+  {
+    "id": "v18",
+    "question": "有未成年人从35楼抛下矿泉水瓶致路人受伤致残，法院判令监护人承担赔偿责任。裁判主要依据哪一条法律规定？",
+    "expected": [
+      "第一千二百五十四条"
+    ],
+    "acceptable": null,
+    "law_id": "civil_code",
+    "article_lookup": false,
+    "query_type": "case",
+    "rewrite_source": "two_stage",
+    "elements": {
+      "domains": [
+        "民法典"
+      ],
+      "topics": [
+        "高空抛物",
+        "未成年人侵权"
+      ],
+      "acts": [
+        "高空抛物"
+      ],
+      "rights": [],
+      "legal_concepts": [
+        "监护人责任",
+        "侵权责任"
+      ],
+      "query_keywords": [
+        "高空抛物",
+        "未成年人",
+        "监护人责任",
+        "侵权责任",
+        "民法典"
+      ]
+    },
+    "rewrite_q": "高空抛物 未成年人 监护人责任 侵权责任 民法典",
+    "concat_q": "检索意图：高空抛物 未成年人 监护人责任 侵权责任 民法典\n案情：有未成年人从35楼抛下矿泉水瓶致路人受伤致残，法院判令监护人承担赔偿责任。裁判主要依据哪一条法律规定？",
+    "inferred_law_id": "civil_code",
+    "domain_confidence": 1.0
+  },
+  {
+    "id": "v02",
+    "question": "宪法规定公民有言论、出版、集会、结社、游行、示威的自由，是哪一条？",
+    "expected": [
+      "第三十五条"
+    ],
+    "acceptable": null,
+    "law_id": "constitution",
+    "article_lookup": false,
+    "query_type": "concept",
+    "rewrite_source": "two_stage",
+    "elements": {
+      "domains": [
+        "宪法"
+      ],
+      "topics": [
+        "言论自由",
+        "出版自由",
+        "集会自由"
+      ],
+      "acts": [],
+      "rights": [
+        "言论自由",
+        "出版自由",
+        "集会自由"
+      ],
+      "legal_concepts": [
+        "基本权利"
+      ],
+      "query_keywords": [
+        "言论自由",
+        "出版自由",
+        "集会自由",
+        "结社自由",
+        "游行自由",
+        "示威自由"
+      ]
+    },
+    "rewrite_q": "言论自由 出版自由 集会自由 结社自由 宪法",
+    "concat_q": "检索意图：言论自由 出版自由 集会自由 结社自由 宪法\n案情：宪法规定公民有言论、出版、集会、结社、游行、示威的自由，是哪一条？",
+    "inferred_law_id": "constitution",
+    "domain_confidence": 1.0
+  }
+]

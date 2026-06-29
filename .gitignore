@@ -1,0 +1,57 @@
+# ========== 密钥与环境 ==========
+.env
+backend/.env
+*.pem
+*.key
+
+# ========== Python ==========
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+.env.local
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+dist/
+build/
+
+# ========== Node / 前端 ==========
+frontend/node_modules/
+frontend/dist/
+*.tsbuildinfo
+
+# ========== 运行时 / 可重建数据 ==========
+backend/data/chroma/
+backend/data/traces/
+backend/data/bm25/
+backend/data/models/
+
+# ========== 日志与临时诊断输出 ==========
+backend/data/eval_retrieval_run.log
+backend/diagnose_full.txt
+backend/diagnose_sample.txt
+backend/data/profile_sample.txt
+
+# ========== IDE / 系统 ==========
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ========== 备份（本地快照，不入库）==========
+backend/data/parsed_backup_*/
+
+# ========== 本地临时文件 ==========
+新建文本文档.txt
+新建 文本文档.txt
+
+# ========== 与本项目无关的本地文档 ==========
+docs/generate_ner_report.py
+docs/ner_report_extract/
+docs/*.docx

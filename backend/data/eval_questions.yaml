@@ -1,0 +1,323 @@
+# RAG 对比评测集（AI 生成标注，已由 eval_questions_verified.yaml 替代）
+# 保留本文件仅供历史对比；新实验请使用 eval_questions_verified.yaml
+questions:
+  - id: q01
+    question: 公民的言论自由在哪一条规定？
+    law_id: constitution
+    expected_articles: ["第35条"]
+
+  - id: q02
+    question: 公民有选举权和被选举权吗，依据哪条？
+    law_id: constitution
+    expected_articles: ["第34条"]
+
+  - id: q03
+    question: 公民行使自由和权利时有什么限制？
+    law_id: constitution
+    expected_articles: ["第51条"]
+
+  - id: q04
+    question: 国家保护公民的合法私有财产吗？
+    law_id: constitution
+    expected_articles: ["第13条"]
+
+  - id: q05
+    question: 劳动者有休息的权利吗？
+    law_id: constitution
+    expected_articles: ["第43条"]
+
+  - id: q06
+    question: 结婚需要满足什么条件？
+    law_id: civil_code
+    expected_articles: ["第1046条", "第1047条", "第1048条", "第1049条"]
+
+  - id: q07
+    question: 离婚时财产如何分割？
+    law_id: civil_code
+    expected_articles: ["第1087条"]
+
+  - id: q08
+    question: 自然人的民事行为能力从几岁开始完全？
+    law_id: civil_code
+    expected_articles: ["第17条", "第18条"]
+
+  - id: q09
+    question: 借款合同什么时候生效？
+    law_id: civil_code
+    expected_articles: ["第679条"]
+
+  - id: q10
+    question: 被侵权人可以请求哪些损害赔偿？
+    law_id: civil_code
+    expected_articles: ["第1179条", "第1182条"]
+
+  - id: q11
+    question: 故意杀人的法定刑是什么？
+    law_id: criminal_law
+    expected_articles: ["第232条"]
+
+  - id: q12
+    question: 盗窃罪数额较大如何处罚？
+    law_id: criminal_law
+    expected_articles: ["第264条"]
+
+  - id: q13
+    question: 已满14周岁不满16周岁的人犯哪些罪要负刑事责任？
+    law_id: criminal_law
+    expected_articles: ["第17条"]
+
+  - id: q14
+    question: 正当防卫超过必要限度怎么承担刑事责任？
+    law_id: criminal_law
+    expected_articles: ["第20条"]
+
+  - id: q15
+    question: 诈骗公私财物数额较大的如何处罚？
+    law_id: criminal_law
+    expected_articles: ["第266条"]
+
+  - id: q16
+    question: 劳动者每日工作时间最长多少小时？
+    law_id: labor_law
+    expected_articles: ["第36条", "第41条"]
+
+  - id: q17
+    question: 用人单位能否随意解除劳动合同？
+    law_id: labor_law
+    expected_articles: ["第25条", "第26条", "第27条", "第39条"]
+
+  - id: q18
+    question: 加班工资应按什么标准支付？
+    law_id: labor_law
+    expected_articles: ["第44条"]
+
+  - id: q19
+    question: 女职工产假有多少天？
+    law_id: labor_law
+    expected_articles: ["第62条"]
+
+  - id: q20
+    question: 劳动争议申请仲裁的时效是多久？
+    law_id: labor_law
+    expected_articles: ["第82条"]
+
+  - id: q21
+    question: 公民有受教育的权利和义务吗，依据哪条？
+    law_id: constitution
+    expected_articles: ["第46条"]
+
+  - id: q22
+    question: 公民有依照法律纳税的义务吗？
+    law_id: constitution
+    expected_articles: ["第56条"]
+
+  - id: q23
+    question: 公民有宗教信仰自由吗？
+    law_id: constitution
+    expected_articles: ["第36条"]
+
+  - id: q24
+    question: 妇女享有同男子平等的权利在哪条规定？
+    law_id: constitution
+    expected_articles: ["第48条"]
+
+  - id: q25
+    question: 公民的人身自由不受侵犯在哪条规定？
+    law_id: constitution
+    expected_articles: ["第37条"]
+
+  - id: q26
+    question: 民事活动不得违反什么原则？
+    law_id: civil_code
+    expected_articles: ["第8条"]
+
+  - id: q27
+    question: 哪些情形下当事人可以解除合同？
+    law_id: civil_code
+    expected_articles: ["第563条"]
+
+  - id: q28
+    question: 自然人享有隐私权吗，依据哪条？
+    law_id: civil_code
+    expected_articles: ["第1032条"]
+
+  - id: q29
+    question: 从建筑物抛掷物品造成损害由谁承担责任？
+    law_id: civil_code
+    expected_articles: ["第1254条"]
+
+  - id: q30
+    question: 继承从什么时候开始？
+    law_id: civil_code
+    expected_articles: ["第1121条"]
+
+  - id: q31
+    question: 犯罪后自首可以从轻或减轻处罚吗？
+    law_id: criminal_law
+    expected_articles: ["第67条"]
+
+  - id: q32
+    question: 什么是累犯，如何处罚？
+    law_id: criminal_law
+    expected_articles: ["第65条"]
+
+  - id: q33
+    question: 交通肇事罪如何处罚？
+    law_id: criminal_law
+    expected_articles: ["第133条"]
+
+  - id: q34
+    question: 单位犯罪如何承担刑事责任？
+    law_id: criminal_law
+    expected_articles: ["第30条", "第31条"]
+
+  - id: q35
+    question: 醉酒的人犯罪是否需要负刑事责任？
+    law_id: criminal_law
+    expected_articles: ["第18条"]
+
+  - id: q36
+    question: 劳动合同试用期最长不得超过多久？
+    law_id: labor_law
+    expected_articles: ["第21条"]
+
+  - id: q37
+    question: 国家实行最低工资保障制度依据哪条？
+    law_id: labor_law
+    expected_articles: ["第48条"]
+
+  - id: q38
+    question: 未成年工不得从事哪些劳动？
+    law_id: labor_law
+    expected_articles: ["第64条"]
+
+  - id: q39
+    question: 建立劳动关系是否应当订立劳动合同？
+    law_id: labor_law
+    expected_articles: ["第16条"]
+
+  - id: q40
+    question: 用人单位拖欠工资应承担什么法律责任？
+    law_id: labor_law
+    expected_articles: ["第91条"]
+
+  # --- 案情口语题（用于测试 Query 改写） ---
+  - id: q41
+    group: oral
+    question: 我在朋友圈批评单位领导，单位让我删帖还被停职了，这侵犯我说话的自由吗？
+    law_id: constitution
+    expected_articles: ["第35条"]
+
+  - id: q42
+    group: oral
+    question: 爸妈只供弟弟读书不让我念高中，我能靠哪条法律维权？
+    law_id: constitution
+    expected_articles: ["第46条", "第48条"]
+
+  - id: q43
+    group: oral
+    question: 有人把我锁在屋里好几个小时不让走，宪法上说我有什么权利？
+    law_id: constitution
+    expected_articles: ["第37条"]
+
+  - id: q44
+    group: oral
+    question: 楼上邻居扔啤酒瓶砸伤我，应该找谁赔偿、依据什么法律？
+    law_id: civil_code
+    expected_articles: ["第1254条"]
+
+  - id: q45
+    group: oral
+    question: 结婚三年了现在想离婚，房子车子怎么分才合法？
+    law_id: civil_code
+    expected_articles: ["第1087条"]
+
+  - id: q46
+    group: oral
+    question: 朋友借我五万块写了欠条一直拖着不还，我能依据什么法律要钱？
+    law_id: civil_code
+    expected_articles: ["第667条", "第679条"]
+
+  - id: q47
+    group: oral
+    question: 同事喝醉酒开车把人撞伤了，要负什么刑事责任？
+    law_id: criminal_law
+    expected_articles: ["第133条"]
+
+  - id: q48
+    group: oral
+    question: 有人偷我店里价值两千块的手机，会判多少年？
+    law_id: criminal_law
+    expected_articles: ["第264条"]
+
+  - id: q49
+    group: oral
+    question: 骗子用假投资骗了我十万块，这算啥罪、怎么处罚？
+    law_id: criminal_law
+    expected_articles: ["第266条"]
+
+  - id: q50
+    group: oral
+    question: 厂里天天让我加班到十一点还不给加班费，这样合法吗？
+    law_id: labor_law
+    expected_articles: ["第44条"]
+
+  - id: q51
+    group: oral
+    question: 试用期内老板突然说我不合适要辞退，法律上有什么规定？
+    law_id: labor_law
+    expected_articles: ["第21条", "第25条"]
+
+  - id: q52
+    group: oral
+    question: 我怀孕5个月公司逼我主动辞职不给补偿，这样行吗？
+    law_id: labor_law
+    expected_articles: ["第29条"]
+
+  - id: q53
+    group: oral
+    question: 开网店赚了钱一直不报税，税务局找上门了我会不会有事？
+    law_id: constitution
+    expected_articles: ["第56条"]
+
+  - id: q54
+    group: oral
+    question: 我想换宗教但社区有人阻拦，宪法上我有信教的自由吗？
+    law_id: constitution
+    expected_articles: ["第36条"]
+
+  - id: q55
+    group: oral
+    question: 我和对象都成年了，她家里不同意我们还能不能结婚？
+    law_id: civil_code
+    expected_articles: ["第1046条", "第1047条"]
+
+  - id: q56
+    group: oral
+    question: 有人把我在网上的身份证号和家庭住址曝光了，我能告他吗？
+    law_id: civil_code
+    expected_articles: ["第1032条"]
+
+  - id: q57
+    group: oral
+    question: 几个小混混拦路抢我钱包还动手打人，这算什么罪？
+    law_id: criminal_law
+    expected_articles: ["第263条"]
+
+  - id: q58
+    group: oral
+    question: 我偷了东西后来主动去派出所交代了，能不能从轻判？
+    law_id: criminal_law
+    expected_articles: ["第67条"]
+
+  - id: q59
+    group: oral
+    question: 跟老板吵完被开除工资也不结，我该去哪维权、有没有时限？
+    law_id: labor_law
+    expected_articles: ["第82条", "第91条"]
+
+  - id: q60
+    group: oral
+    question: 17岁去电子厂打工每天干10小时，老板说这很正常对吗？
+    law_id: labor_law
+    expected_articles: ["第36条", "第64条"]

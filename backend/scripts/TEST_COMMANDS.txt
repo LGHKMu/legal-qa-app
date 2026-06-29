@@ -1,0 +1,43 @@
+# RAG 测试命令速查（在 backend 目录下执行）
+
+# ========== 前置 ==========
+# pip install -r requirements.txt
+# python scripts/build_index.py
+# 配置 .env 中的 DEEPSEEK_API_KEY
+
+# ========== 完整实验（写报告 + 保存 JSON）==========
+python scripts/run_experiment_suite.py              # 68 题全套
+python scripts/run_experiment_suite.py --quick      # 口语子集
+python scripts/run_experiment_suite.py --report-only
+
+# ========== 一键测试 / CI 门禁 ==========
+# 本地（项目根目录）:
+#   .\run_ci.ps1
+# 本地（backend 目录）:
+python scripts/run_all_tests.py --ci          # 与 GitHub Actions 相同
+python scripts/run_all_tests.py --quick
+python scripts/run_all_tests.py --full
+python scripts/run_all_tests.py --smoke-only
+
+# GitHub：push / PR 到 main 自动跑 .github/workflows/ci.yml
+# 查看结果：仓库 → Actions 标签页
+
+# ========== pytest 单元测试（与 --ci 相同后端部分）==========
+pip install -r requirements-dev.txt
+pytest tests/unit -q -m "not live and not integration"
+
+# ========== 1. test_rag_pipeline.py（单题诊断）==========
+python scripts/test_rag_pipeline.py --smoke
+python scripts/test_rag_pipeline.py --id v05
+python scripts/test_rag_pipeline.py --ids v25,v68
+python scripts/test_rag_pipeline.py --oral
+
+# ========== 2. compare_rag.py（官方评测：baseline / 改写 / Cascade混合）==========
+python scripts/compare_rag.py --compare-rewrite --retrieval-only
+python scripts/compare_rag.py --compare-rewrite --retrieval-only --output data/eval_report.json
+
+# ========== 3. diagnose_hybrid_gap.py（混合 vs 改写差异）==========
+python scripts/diagnose_hybrid_gap.py --ids v25,v68
+
+# ========== 4. 线上 API ==========
+# python -m uvicorn main:app --reload --port 8001

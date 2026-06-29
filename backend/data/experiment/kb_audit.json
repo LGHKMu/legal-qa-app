@@ -1,0 +1,49 @@
+{
+  "timestamp": "2026-06-09T10:14:51.417948+00:00",
+  "laws_yaml": "D:\\test\\legal-qa-app\\backend\\data\\laws.yaml",
+  "index_stats": {
+    "constitution": 138,
+    "civil_code": 1260,
+    "criminal_law": 452,
+    "labor_law": 107
+  },
+  "parsed": [
+    {
+      "id": "constitution",
+      "name": "中华人民共和国宪法",
+      "source_url": "http://www.npc.gov.cn/c34354/xgjbfwyh/xgjbfwyh002/xgjbfwyh003/202410/t20241028_440219.html",
+      "raw_file": "constitution.html",
+      "article_count": 138,
+      "last_article": "第一百三十八条",
+      "sample_first": "第一条"
+    },
+    {
+      "id": "civil_code",
+      "name": "中华人民共和国民法典",
+      "source_url": "https://flk.npc.gov.cn/detail2.html?ZmY4MDgwODE3MjlkMWVmZTAxNzI5ZDUwYjVjNTAwYmY%3D",
+      "raw_file": "civil_code.txt",
+      "article_count": 1260,
+      "last_article": "第一千二百六十条",
+      "sample_first": "第一条"
+    },
+    {
+      "id": "criminal_law",
+      "name": "中华人民共和国刑法",
+      "source_url": "http://www.npc.gov.cn/c1773/c1848/c21114/c25714/c25716/201905/t20190522_46193.html",
+      "raw_file": "criminal_law.html",
+      "article_count": 452,
+      "last_article": "第四百五十二条",
+      "sample_first": "第一条"
+    },
+    {
+      "id": "labor_law",
+      "name": "中华人民共和国劳动法",
+      "source_url": "http://www.npc.gov.cn/npc/c3001/c3003/201905/t20190522_20595.html",
+      "raw_file": "labor_law.html",
+      "article_count": 107,
+      "last_article": "第一百零七条",
+      "sample_first": "第一条"
+    }
+  ],
+  "total_articles": 1957
+}

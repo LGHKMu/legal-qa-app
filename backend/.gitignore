@@ -1,0 +1,10 @@
+# 后端目录沿用根目录 .gitignore；此处仅补充 backend 相对路径写法
+.env
+data/chroma/
+data/traces/
+data/bm25/
+data/models/
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/

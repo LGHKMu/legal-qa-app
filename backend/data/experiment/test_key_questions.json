@@ -1,0 +1,364 @@
+{
+  "query_rewrite_mode": "two_stage",
+  "dual_retrieval_enabled": true,
+  "summary": {
+    "baseline": 2,
+    "rewrite": 3,
+    "dual_rrf": 3,
+    "n": 3
+  },
+  "results": [
+    {
+      "id": "q05",
+      "question": "劳动者有休息的权利吗？",
+      "expected_articles": [
+        "第43条"
+      ],
+      "baseline": {
+        "query": "劳动者有休息的权利吗？",
+        "articles": [
+          "第四十三条",
+          "第四十四条",
+          "第三十九条",
+          "第三条",
+          "第三十八条"
+        ],
+        "hit": true
+      },
+      "rewrite_modes": {
+        "single": {
+          "query": "劳动者休息权 劳动法",
+          "source": "rewrite",
+          "articles": [
+            "第四十三条",
+            "第三十九条",
+            "第三条",
+            "第三十八条",
+            "第四十四条"
+          ],
+          "hit": true
+        },
+        "two_stage": {
+          "query": "休息权 劳动者 劳动法 休息时间",
+          "source": "two_stage",
+          "articles": [
+            "第四十三条",
+            "第三十八条",
+            "第三十九条",
+            "第四十四条",
+            "第三十六条"
+          ],
+          "hit": true,
+          "legal_elements": {
+            "domains": [
+              "劳动法"
+            ],
+            "topics": [
+              "休息权"
+            ],
+            "acts": [],
+            "rights": [
+              "休息权"
+            ],
+            "legal_concepts": [
+              "劳动者休息权"
+            ],
+            "query_keywords": [
+              "休息权",
+              "劳动者",
+              "劳动法",
+              "休息时间"
+            ]
+          }
+        }
+      },
+      "dual_rrf": {
+        "rewrite_query": "休息权 劳动者 劳动法 休息时间",
+        "rewrite_source": "two_stage",
+        "rewrite_mode": "two_stage",
+        "legal_elements": {
+          "domains": [
+            "劳动法"
+          ],
+          "topics": [
+            "休息权"
+          ],
+          "acts": [],
+          "rights": [
+            "休息权"
+          ],
+          "legal_concepts": [
+            "劳动者休息权"
+          ],
+          "query_keywords": [
+            "休息权",
+            "劳动者",
+            "劳动法",
+            "休息时间"
+          ]
+        },
+        "rewrite_path_top": [
+          "第四十三条",
+          "第三十八条",
+          "第三十九条",
+          "第四十四条",
+          "第三十六条"
+        ],
+        "baseline_path_top": [
+          "第四十三条",
+          "第四十四条",
+          "第三十九条",
+          "第三条",
+          "第三十八条"
+        ],
+        "articles": [
+          "第四十三条",
+          "第三十八条",
+          "第三十九条",
+          "第四十四条",
+          "第三十六条"
+        ],
+        "hit": true,
+        "fusion": true
+      }
+    },
+    {
+      "id": "q26",
+      "question": "民事活动不得违反什么原则？",
+      "expected_articles": [
+        "第8条"
+      ],
+      "baseline": {
+        "query": "民事活动不得违反什么原则？",
+        "articles": [
+          "第八条",
+          "第六条",
+          "第七条",
+          "第十条",
+          "第一百三十二条"
+        ],
+        "hit": true
+      },
+      "rewrite_modes": {
+        "single": {
+          "query": "民事活动 基本原则 民法典",
+          "source": "rewrite",
+          "articles": [
+            "第六条",
+            "第七条",
+            "第十二条",
+            "第一百三十二条",
+            "第五条"
+          ],
+          "hit": false
+        },
+        "two_stage": {
+          "query": "民事活动 基本原则 诚实信用 公序良俗 民法典",
+          "source": "two_stage",
+          "articles": [
+            "第七条",
+            "第六条",
+            "第八条",
+            "第十二条",
+            "第十条"
+          ],
+          "hit": true,
+          "legal_elements": {
+            "domains": [
+              "民法典"
+            ],
+            "topics": [
+              "民事活动",
+              "基本原则"
+            ],
+            "acts": [],
+            "rights": [],
+            "legal_concepts": [
+              "诚实信用",
+              "公序良俗",
+              "公平原则"
+            ],
+            "query_keywords": [
+              "民事活动",
+              "基本原则",
+              "诚实信用",
+              "公序良俗",
+              "民法典"
+            ]
+          }
+        }
+      },
+      "dual_rrf": {
+        "rewrite_query": "民事活动 基本原则 诚实信用 公序良俗 民法典",
+        "rewrite_source": "two_stage",
+        "rewrite_mode": "two_stage",
+        "legal_elements": {
+          "domains": [
+            "民法典"
+          ],
+          "topics": [
+            "民事活动",
+            "基本原则"
+          ],
+          "acts": [],
+          "rights": [],
+          "legal_concepts": [
+            "诚实信用",
+            "公序良俗",
+            "公平原则"
+          ],
+          "query_keywords": [
+            "民事活动",
+            "基本原则",
+            "诚实信用",
+            "公序良俗",
+            "民法典"
+          ]
+        },
+        "rewrite_path_top": [
+          "第七条",
+          "第六条",
+          "第八条",
+          "第十二条",
+          "第十条"
+        ],
+        "baseline_path_top": [
+          "第八条",
+          "第六条",
+          "第七条",
+          "第十条",
+          "第一百三十二条"
+        ],
+        "articles": [
+          "第七条",
+          "第六条",
+          "第八条",
+          "第十二条",
+          "第十条"
+        ],
+        "hit": true,
+        "fusion": true
+      }
+    },
+    {
+      "id": "q41",
+      "question": "我在朋友圈批评单位领导，单位让我删帖还被停职了，这侵犯我说话的自由吗？",
+      "expected_articles": [
+        "第35条"
+      ],
+      "baseline": {
+        "query": "我在朋友圈批评单位领导，单位让我删帖还被停职了，这侵犯我说话的自由吗？",
+        "articles": [
+          "第一千零三十七条",
+          "第一千零二十八条",
+          "第一千零一十条",
+          "第一千零二十九条",
+          "第四百零三条"
+        ],
+        "hit": false
+      },
+      "rewrite_modes": {
+        "single": {
+          "query": "朋友圈批评领导 停职 言论自由 劳动法",
+          "source": "rewrite",
+          "articles": [
+            "第三十九条",
+            "第三十条",
+            "第一百零七条",
+            "第二百四十四条",
+            "第九十条"
+          ],
+          "hit": false
+        },
+        "two_stage": {
+          "query": "言论自由 停职 宪法 劳动者权利",
+          "source": "two_stage",
+          "articles": [
+            "第三十五条",
+            "第三十七条",
+            "第五十一条",
+            "第四十三条",
+            "第一百零九条"
+          ],
+          "hit": true,
+          "legal_elements": {
+            "domains": [
+              "宪法",
+              "劳动法"
+            ],
+            "topics": [
+              "停职",
+              "言论自由"
+            ],
+            "acts": [],
+            "rights": [
+              "言论自由"
+            ],
+            "legal_concepts": [
+              "停职处分"
+            ],
+            "query_keywords": [
+              "言论自由",
+              "停职",
+              "宪法",
+              "劳动者权利",
+              "批评"
+            ]
+          }
+        }
+      },
+      "dual_rrf": {
+        "rewrite_query": "言论自由 停职 宪法 劳动者权利",
+        "rewrite_source": "two_stage",
+        "rewrite_mode": "two_stage",
+        "legal_elements": {
+          "domains": [
+            "宪法",
+            "劳动法"
+          ],
+          "topics": [
+            "停职",
+            "言论自由"
+          ],
+          "acts": [],
+          "rights": [
+            "言论自由"
+          ],
+          "legal_concepts": [
+            "停职处分"
+          ],
+          "query_keywords": [
+            "言论自由",
+            "停职",
+            "宪法",
+            "劳动者权利",
+            "批评"
+          ]
+        },
+        "rewrite_path_top": [
+          "第三十五条",
+          "第三十七条",
+          "第五十一条",
+          "第四十三条",
+          "第一百零九条"
+        ],
+        "baseline_path_top": [
+          "第一千零三十七条",
+          "第一千零二十八条",
+          "第一千零一十条",
+          "第一千零二十九条",
+          "第四百零三条"
+        ],
+        "articles": [
+          "第三十五条",
+          "第三十七条",
+          "第五十一条",
+          "第四十三条",
+          "第一百零九条"
+        ],
+        "hit": true,
+        "fusion": true
+      }
+    }
+  ]
+}

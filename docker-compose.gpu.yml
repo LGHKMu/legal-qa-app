@@ -1,0 +1,14 @@
+# GPU 部署覆盖（需 NVIDIA Container Toolkit）
+# 用法：docker compose -f docker-compose.yml -f docker-compose.gpu.yml up -d --build
+
+services:
+  backend:
+    environment:
+      INFERENCE_DEVICE: cuda
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]

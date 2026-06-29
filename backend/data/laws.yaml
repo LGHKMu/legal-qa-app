@@ -1,0 +1,31 @@
+# 国家法律法规数据库 https://flk.npc.gov.cn
+laws:
+  - id: constitution
+    name: 中华人民共和国宪法
+    source_url: http://www.npc.gov.cn/c34354/xgjbfwyh/xgjbfwyh002/xgjbfwyh003/202410/t20241028_440219.html
+    flk_id: MmM5MDlmZGQ2NzhiZjE3OTAxNjc4YmY1YTQ4MzAwNGI%3D
+    fallback_url: https://flk.npc.gov.cn/detail2.html?MmM5MDlmZGQ2NzhiZjE3OTAxNjc4YmY1YTQ4MzAwNGI%3D
+    raw_file: constitution.html
+    enabled: true
+
+  - id: civil_code
+    name: 中华人民共和国民法典
+    source_url: https://flk.npc.gov.cn/detail2.html?ZmY4MDgwODE3MjlkMWVmZTAxNzI5ZDUwYjVjNTAwYmY%3D
+    flk_id: ZmY4MDgwODE3MjlkMWVmZTAxNzI5ZDUwYjVjNTAwYmY%3D
+    fallback_url: http://gongbao.court.gov.cn/Details/51eb6750b8361f79be8f90d09bc202.html
+    raw_file: civil_code.txt
+    enabled: true
+
+  - id: criminal_law
+    name: 中华人民共和国刑法
+    source_url: http://www.npc.gov.cn/c1773/c1848/c21114/c25714/c25716/201905/t20190522_46193.html
+    fallback_url: http://gongbao.court.gov.cn/details/f8e30d0689b23f57bfc782d21035c3.html
+    raw_file: criminal_law.html
+    enabled: true
+
+  - id: labor_law
+    name: 中华人民共和国劳动法
+    source_url: http://www.npc.gov.cn/npc/c3001/c3003/201905/t20190522_20595.html
+    fallback_url: https://www.mohrss.gov.cn/xxgk2020/fdzdgknr/zcfg/fl/202011/t20201102_394625.html
+    raw_file: labor_law.html
+    enabled: true

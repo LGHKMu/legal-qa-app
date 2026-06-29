@@ -1,0 +1,396 @@
+{
+  "top_k": 5,
+  "summaries": [
+    {
+      "mode": "rag_retrieval",
+      "count": 20,
+      "recall_at_k": 0.75,
+      "avg_citation_recall": 0.0,
+      "avg_citation_precision": 0.0,
+      "hallucination_rate": 0.0,
+      "avg_latency_ms": 10.538754999288358
+    }
+  ],
+  "details": [
+    {
+      "id": "q01",
+      "question": "公民的言论自由在哪一条规定？",
+      "mode": "rag_retrieval",
+      "recall_at_k": true,
+      "retrieved_articles": [
+        "第三十五条",
+        "第三十七条",
+        "第三十六条",
+        "第四十七条",
+        "第五十一条"
+      ],
+      "cited_articles": [],
+      "citation_recall": 0.0,
+      "citation_precision": 0.0,
+      "hallucination": false,
+      "latency_ms": 23.866500006988645,
+      "answer_preview": ""
+    },
+    {
+      "id": "q02",
+      "question": "公民有选举权和被选举权吗，依据哪条？",
+      "mode": "rag_retrieval",
+      "recall_at_k": true,
+      "retrieved_articles": [
+        "第三十四条",
+        "第二百五十六条",
+        "第九百九十九条",
+        "第四十一条",
+        "第四十七条"
+      ],
+      "cited_articles": [],
+      "citation_recall": 0.0,
+      "citation_precision": 0.0,
+      "hallucination": false,
+      "latency_ms": 10.792499990202487,
+      "answer_preview": ""
+    },
+    {
+      "id": "q03",
+      "question": "公民行使自由和权利时有什么限制？",
+      "mode": "rag_retrieval",
+      "recall_at_k": true,
+      "retrieved_articles": [
+        "第五十一条",
+        "第三十七条",
+        "第三十六条",
+        "第三十四条",
+        "第三十五条"
+      ],
+      "cited_articles": [],
+      "citation_recall": 0.0,
+      "citation_precision": 0.0,
+      "hallucination": false,
+      "latency_ms": 9.509700001217425,
+      "answer_preview": ""
+    },
+    {
+      "id": "q04",
+      "question": "国家保护公民的合法私有财产吗？",
+      "mode": "rag_retrieval",
+      "recall_at_k": true,
+      "retrieved_articles": [
+        "第十三条",
+        "第九十二条",
+        "第二百六十七条",
+        "第九十一条",
+        "第二百四十六条"
+      ],
+      "cited_articles": [],
+      "citation_recall": 0.0,
+      "citation_precision": 0.0,
+      "hallucination": false,
+      "latency_ms": 9.653199987951666,
+      "answer_preview": ""
+    },
+    {
+      "id": "q05",
+      "question": "劳动者有休息的权利吗？",
+      "mode": "rag_retrieval",
+      "recall_at_k": false,
+      "retrieved_articles": [
+        "第三十八条",
+        "第四十四条",
+        "第三条",
+        "第四十五条",
+        "第三十七条"
+      ],
+      "cited_articles": [],
+      "citation_recall": 0.0,
+      "citation_precision": 0.0,
+      "hallucination": false,
+      "latency_ms": 9.767400042619556,
+      "answer_preview": ""
+    },
+    {
+      "id": "q06",
+      "question": "结婚需要满足什么条件？",
+      "mode": "rag_retrieval",
+      "recall_at_k": true,
+      "retrieved_articles": [
+        "第一千零四十九条",
+        "第一千零五十条",
+        "第一千零四十六条",
+        "第一千零四十三条",
+        "第一千零四十七条"
+      ],
+      "cited_articles": [],
+      "citation_recall": 0.0,
+      "citation_precision": 0.0,
+      "hallucination": false,
+      "latency_ms": 8.94589995732531,
+      "answer_preview": ""
+    },
+    {
+      "id": "q07",
+      "question": "离婚时财产如何分割？",
+      "mode": "rag_retrieval",
+      "recall_at_k": true,
+      "retrieved_articles": [
+        "第一千零九十二条",
+        "第一千零八十七条",
+        "第一千一百五十三条",
+        "第一千零八十九条",
+        "第一千零六十六条"
+      ],
+      "cited_articles": [],
+      "citation_recall": 0.0,
+      "citation_precision": 0.0,
+      "hallucination": false,
+      "latency_ms": 9.259400016162544,
+      "answer_preview": ""
+    },
+    {
+      "id": "q08",
+      "question": "自然人的民事行为能力从几岁开始完全？",
+      "mode": "rag_retrieval",
+      "recall_at_k": true,
+      "retrieved_articles": [
+        "第十七条",
+        "第十八条",
+        "第十九条",
+        "第十五条",
+        "第十三条"
+      ],
+      "cited_articles": [],
+      "citation_recall": 0.0,
+      "citation_precision": 0.0,
+      "hallucination": false,
+      "latency_ms": 9.845399996265769,
+      "answer_preview": ""
+    },
+    {
+      "id": "q09",
+      "question": "借款合同什么时候生效？",
+      "mode": "rag_retrieval",
+      "recall_at_k": true,
+      "retrieved_articles": [
+        "第五百零二条",
+        "第六百七十一条",
+        "第六百七十九条",
+        "第六百七十二条",
+        "第六百六十九条"
+      ],
+      "cited_articles": [],
+      "citation_recall": 0.0,
+      "citation_precision": 0.0,
+      "hallucination": false,
+      "latency_ms": 10.248599981423467,
+      "answer_preview": ""
+    },
+    {
+      "id": "q10",
+      "question": "被侵权人可以请求哪些损害赔偿？",
+      "mode": "rag_retrieval",
+      "recall_at_k": true,
+      "retrieved_articles": [
+        "第一千一百八十三条",
+        "第一千一百八十二条",
+        "第一千一百八十五条",
+        "第一千一百八十一条",
+        "第一千一百八十七条"
+      ],
+      "cited_articles": [],
+      "citation_recall": 0.0,
+      "citation_precision": 0.0,
+      "hallucination": false,
+      "latency_ms": 10.967600042931736,
+      "answer_preview": ""
+    },
+    {
+      "id": "q11",
+      "question": "故意杀人的法定刑是什么？",
+      "mode": "rag_retrieval",
+      "recall_at_k": false,
+      "retrieved_articles": [
+        "第十四条",
+        "第二百四十七条",
+        "第十七条",
+        "第二百三十八条",
+        "第一百零九条"
+      ],
+      "cited_articles": [],
+      "citation_recall": 0.0,
+      "citation_precision": 0.0,
+      "hallucination": false,
+      "latency_ms": 9.709599951747805,
+      "answer_preview": ""
+    },
+    {
+      "id": "q12",
+      "question": "盗窃罪数额较大如何处罚？",
+      "mode": "rag_retrieval",
+      "recall_at_k": false,
+      "retrieved_articles": [
+        "第三百四十七条",
+        "第一百七十二条",
+        "第一百七十三条",
+        "第一百七十一条",
+        "第一百七十五条"
+      ],
+      "cited_articles": [],
+      "citation_recall": 0.0,
+      "citation_precision": 0.0,
+      "hallucination": false,
+      "latency_ms": 9.066400001756847,
+      "answer_preview": ""
+    },
+    {
+      "id": "q13",
+      "question": "已满14周岁不满16周岁的人犯哪些罪要负刑事责任？",
+      "mode": "rag_retrieval",
+      "recall_at_k": true,
+      "retrieved_articles": [
+        "第十七条",
+        "第二百六十二条",
+        "第二十九条",
+        "第三十条",
+        "第四十九条"
+      ],
+      "cited_articles": [],
+      "citation_recall": 0.0,
+      "citation_precision": 0.0,
+      "hallucination": false,
+      "latency_ms": 10.57720003882423,
+      "answer_preview": ""
+    },
+    {
+      "id": "q14",
+      "question": "正当防卫超过必要限度怎么承担刑事责任？",
+      "mode": "rag_retrieval",
+      "recall_at_k": true,
+      "retrieved_articles": [
+        "第二十条",
+        "第二十一条",
+        "第一百八十一条",
+        "第十七条",
+        "第一千一百八十八条"
+      ],
+      "cited_articles": [],
+      "citation_recall": 0.0,
+      "citation_precision": 0.0,
+      "hallucination": false,
+      "latency_ms": 10.538999980781227,
+      "answer_preview": ""
+    },
+    {
+      "id": "q15",
+      "question": "诈骗公私财物数额较大的如何处罚？",
+      "mode": "rag_retrieval",
+      "recall_at_k": false,
+      "retrieved_articles": [
+        "第一百九十七条",
+        "第一百九十三条",
+        "第一百九十八条",
+        "第三百四十七条",
+        "第一百九十五条"
+      ],
+      "cited_articles": [],
+      "citation_recall": 0.0,
+      "citation_precision": 0.0,
+      "hallucination": false,
+      "latency_ms": 9.352699969895184,
+      "answer_preview": ""
+    },
+    {
+      "id": "q16",
+      "question": "劳动者每日工作时间最长多少小时？",
+      "mode": "rag_retrieval",
+      "recall_at_k": false,
+      "retrieved_articles": [
+        "第四十四条",
+        "第四十五条",
+        "第四十三条",
+        "第三十七条",
+        "第四十二条"
+      ],
+      "cited_articles": [],
+      "citation_recall": 0.0,
+      "citation_precision": 0.0,
+      "hallucination": false,
+      "latency_ms": 9.719599969685078,
+      "answer_preview": ""
+    },
+    {
+      "id": "q17",
+      "question": "用人单位能否随意解除劳动合同？",
+      "mode": "rag_retrieval",
+      "recall_at_k": true,
+      "retrieved_articles": [
+        "第三十二条",
+        "第二十五条",
+        "第三十条",
+        "第三十一条",
+        "第二十七条"
+      ],
+      "cited_articles": [],
+      "citation_recall": 0.0,
+      "citation_precision": 0.0,
+      "hallucination": false,
+      "latency_ms": 9.847100009210408,
+      "answer_preview": ""
+    },
+    {
+      "id": "q18",
+      "question": "加班工资应按什么标准支付？",
+      "mode": "rag_retrieval",
+      "recall_at_k": true,
+      "retrieved_articles": [
+        "第五十一条",
+        "第五十条",
+        "第四十四条",
+        "第四十六条",
+        "第四十九条"
+      ],
+      "cited_articles": [],
+      "citation_recall": 0.0,
+      "citation_precision": 0.0,
+      "hallucination": false,
+      "latency_ms": 9.543299966026098,
+      "answer_preview": ""
+    },
+    {
+      "id": "q19",
+      "question": "女职工产假有多少天？",
+      "mode": "rag_retrieval",
+      "recall_at_k": true,
+      "retrieved_articles": [
+        "第六十二条",
+        "第六十一条",
+        "第四十五条",
+        "第六十三条",
+        "第四十条"
+      ],
+      "cited_articles": [],
+      "citation_recall": 0.0,
+      "citation_precision": 0.0,
+      "hallucination": false,
+      "latency_ms": 9.507700044196099,
+      "answer_preview": ""
+    },
+    {
+      "id": "q20",
+      "question": "劳动争议申请仲裁的时效是多久？",
+      "mode": "rag_retrieval",
+      "recall_at_k": true,
+      "retrieved_articles": [
+        "第八十二条",
+        "第八十三条",
+        "第七十九条",
+        "第七十七条",
+        "第八十四条"
+      ],
+      "cited_articles": [],
+      "citation_recall": 0.0,
+      "citation_precision": 0.0,
+      "hallucination": false,
+      "latency_ms": 10.056300030555576,
+      "answer_preview": ""
+    }
+  ]
+}

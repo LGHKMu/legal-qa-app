@@ -1,0 +1,22 @@
+# 统一换行符，避免 Windows / Linux 协作 diff 噪音
+* text=auto eol=lf
+
+# Shell 脚本在 Linux 容器内执行
+*.sh text eol=lf
+backend/docker-entrypoint.sh text eol=lf
+
+# Windows 脚本保留 CRLF
+*.ps1 text eol=crlf
+*.bat text eol=crlf
+
+# 二进制
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.ico binary
+*.pdf binary
+*.pkl binary
+*.bin binary
+*.safetensors binary

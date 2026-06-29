@@ -1,0 +1,12 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+.env
+.env.*
+!.env.example
+data/chroma/
+data/traces/
+data/bm25/
+data/models/
+*.log

@@ -1,0 +1,43 @@
+# legal-qa-app Docker Compose
+# 用法见 docs/DEPLOY.md
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: legal-qa-backend
+    env_file:
+      - ./backend/.env
+    environment:
+      UVICORN_HOST: 0.0.0.0
+      UVICORN_PORT: 8001
+      # Docker 默认 CPU；有 NVIDIA 时可改为 cuda 并启用 gpu profile
+      INFERENCE_DEVICE: ${INFERENCE_DEVICE:-cpu}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:8080}
+    volumes:
+      - ./backend/data/chroma:/app/data/chroma
+      - ./backend/data/bm25:/app/data/bm25
+      - ./backend/data/models:/app/data/models
+      - ./backend/data/traces:/app/data/traces
+    expose:
+      - "8001"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:8001/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 180s
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: legal-qa-frontend
+    ports:
+      - "${APP_PORT:-8080}:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
