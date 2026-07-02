@@ -35,7 +35,7 @@
 - 查条、概念、案情使用不同生成 prompt，减少臆造条号
 - 校验修正回答时，通过 `answer_revision` 事件更新正文
 
-### 案情检索 Retry（Phase 2，方案 A）
+### 案情检索 Retry（Phase 2）
 
 仅 **案情咨询** 触发，Agent 计划步数不变（retry 内嵌在「检索相关法条」工具内）：
 
