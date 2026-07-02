@@ -4,7 +4,8 @@
   cd backend
   python scripts/compare_rag.py                  # 完整评测（需 DEEPSEEK_API_KEY）
   python scripts/compare_rag.py --retrieval-only # 仅检索指标
-  python scripts/compare_rag.py --compare-rewrite --retrieval-only  # baseline / 改写 / Cascade混合
+  python scripts/compare_rag.py --compare-rewrite --retrieval-only  # baseline / 改写 / 混合 / Agent线上
+  python scripts/compare_rag.py --compare-agent --retrieval-only   # 仅 Agent 线上路径
   python scripts/compare_rag.py --no-rewrite     # 关闭 Query 改写
   python scripts/compare_rag.py --output data/eval_report.json
 """
@@ -29,7 +30,10 @@ import yaml
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
+BACKEND = Path(__file__).resolve().parent.parent
+
 from config import settings
+from agent.pre_retrieval import run_agent_pre_retrieval
 from llm import ask_llm, ask_llm_no_rag
 from rag import (
     build_retrieval_query,
@@ -41,6 +45,14 @@ from rag import (
 )
 
 EVAL_FILE = Path(__file__).resolve().parent.parent / "data" / "eval_questions_verified.yaml"
+
+GATE_MODE_ALIASES: dict[str, str] = {
+    "retrieval": "rag_retrieval",
+    "agent": "retrieval_agent",
+    "hybrid": "retrieval_hybrid",
+    "baseline": "retrieval_baseline",
+    "rewrite": "retrieval_rewrite",
+}
 CITATION_RE = re.compile(r"《([^》]{2,30})》\s*(第[零〇一二三四五六七八九十百千万\d]+条)")
 CN_DIGITS = {"零": 0, "〇": 0, "一": 1, "二": 2, "三": 3, "四": 4, "五": 5, "六": 6, "七": 7, "八": 8, "九": 9}
 
@@ -147,6 +159,11 @@ class QuestionResult:
     query_source: str = ""
     fusion_mode: str = ""
     rrf_pool_size: int = 0
+    intent: str = ""
+    route_source: str = ""
+    retrieval_retry: bool = False
+    retrieval_retry_reason: str = ""
+    tools_run: list[str] = field(default_factory=list)
 
 
 @dataclass
@@ -160,9 +177,66 @@ class Summary:
     avg_latency_ms: float = 0.0
 
 
-def load_questions() -> list[dict]:
-    with open(EVAL_FILE, encoding="utf-8") as f:
+def load_questions(eval_file: Path | None = None) -> list[dict]:
+    path = eval_file or EVAL_FILE
+    with open(path, encoding="utf-8") as f:
         return yaml.safe_load(f)["questions"]
+
+
+def normalize_gate_mode(mode: str) -> str:
+    key = mode.strip()
+    return GATE_MODE_ALIASES.get(key, key)
+
+
+def recall_for_gate_mode(summaries: list[Summary], gate_mode: str) -> float | None:
+    """从 summaries 中取指定模式的 Recall@K。"""
+    target = normalize_gate_mode(gate_mode)
+    for summary in summaries:
+        if summary.mode == target:
+            return summary.recall_at_k
+    return None
+
+
+def enforce_recall_gate(
+    summaries: list[Summary],
+    *,
+    gate_mode: str,
+    min_recall: float,
+) -> None:
+    """低于阈值时抛出 SystemExit(1)。"""
+    actual = recall_for_gate_mode(summaries, gate_mode)
+    target = normalize_gate_mode(gate_mode)
+    if actual is None:
+        print(f"\n[FAIL] 门禁模式 {target} 无评测汇总", flush=True)
+        raise SystemExit(1)
+    print(
+        f"\n[Gate] {target} Recall@{settings.top_k}: {actual:.1%} "
+        f"(阈值 >= {min_recall:.1%})",
+        flush=True,
+    )
+    if actual + 1e-9 < min_recall:
+        print(f"[FAIL] Recall 未达门禁阈值", flush=True)
+        raise SystemExit(1)
+    print("[PASS] Recall 门禁通过", flush=True)
+
+
+
+def agent_column_label() -> str:
+    """第四列：与 /api/ask Agent 前置检索一致。"""
+    parts = ["Agent线上"]
+    if settings.agent_case_retry_enabled:
+        parts.append("案情retry")
+    return "+".join(parts)
+
+
+def print_agent_alignment_note() -> None:
+    print(
+        "\n口径说明: Agent列 = 意图路由 → filter_context → "
+        "查条(get_article+检索fallback) / 概念·案情(search_laws)；"
+        "案情走 retrieve_fusion + 质量评估 + 二轮补充 + 主题锚点；"
+        "混合列 = 全题 retrieve_fusion(rewrite=True)，无路由分流。",
+        flush=True,
+    )
 
 
 def hybrid_column_label() -> str:
@@ -283,19 +357,44 @@ def run_retrieval_fusion(
     return chunks, hit, retrieved, meta
 
 
+def run_agent_retrieval(
+    question: str,
+    item: dict,
+    top_k: int,
+) -> tuple[list[dict], bool, list[str], dict]:
+    outcome = run_agent_pre_retrieval(question, None)
+    chunks = outcome.chunks[:top_k]
+    retrieved = [c["article_no"] for c in chunks]
+    hit = retrieval_hit(chunks, item)
+    meta = {
+        "intent": outcome.intent,
+        "route_source": outcome.route_source,
+        "retrieval_retry": outcome.retrieval_retry,
+        "retrieval_retry_reason": outcome.retrieval_retry_reason,
+        "tools_run": outcome.tools_run,
+        **outcome.retrieve_meta,
+    }
+    return chunks, hit, retrieved, meta
+
+
 def run_rewrite_comparison(
     top_k: int | None,
+    *,
+    include_agent: bool = True,
+    eval_file: Path | None = None,
 ) -> tuple[list[QuestionResult], list[Summary]]:
     k = top_k or settings.top_k
     print("正在加载 Embedding 模型与向量库...", flush=True)
     if not wait_until_ready():
         raise RuntimeError("RAG 组件加载超时")
-    if not settings.deepseek_api_key:
+    if settings.query_rewrite_enabled and not settings.deepseek_api_key:
         raise RuntimeError("Query 改写对比需要配置 DEEPSEEK_API_KEY")
-    print("加载完成，开始改写 / 混合融合对比评测。", flush=True)
+    print("加载完成，开始改写 / 混合 / Agent 线上路径对比评测。", flush=True)
     print_retrieval_config()
+    if include_agent:
+        print_agent_alignment_note()
 
-    questions = load_questions()
+    questions = load_questions(eval_file)
     results: list[QuestionResult] = []
     total = len(questions)
 
@@ -332,6 +431,23 @@ def run_rewrite_comparison(
             f"{'命中' if hit_fusion else '未命中'}{extra}",
             flush=True,
         )
+
+        agent_meta: dict = {}
+        hit_agent = False
+        arts_agent: list[str] = []
+        ms_agent = 0.0
+        if include_agent:
+            t3 = time.perf_counter()
+            _, hit_agent, arts_agent, agent_meta = run_agent_retrieval(question, item, k)
+            ms_agent = (time.perf_counter() - t3) * 1000
+            intent = agent_meta.get("intent", "")
+            retry = " retry" if agent_meta.get("retrieval_retry") else ""
+            print(
+                f"  agent[{intent}{retry}]: "
+                f"{'命中' if hit_agent else '未命中'} "
+                f"tools={agent_meta.get('tools_run', [])}",
+                flush=True,
+            )
 
         results.append(
             QuestionResult(
@@ -373,13 +489,101 @@ def run_rewrite_comparison(
                 latency_ms=ms_fusion,
             )
         )
+        if include_agent:
+            results.append(
+                QuestionResult(
+                    id=qid,
+                    question=question,
+                    mode="retrieval_agent",
+                    recall_at_k=hit_agent,
+                    retrieved_articles=arts_agent,
+                    search_query=str(agent_meta.get("search_query") or agent_meta.get("rewrite_query") or ""),
+                    query_source=agent_meta.get("query_source", "agent"),
+                    fusion_mode=agent_meta.get("fusion_mode", ""),
+                    rrf_pool_size=int(agent_meta.get("rrf_pool_size") or 0),
+                    latency_ms=ms_agent,
+                    intent=str(agent_meta.get("intent", "")),
+                    route_source=str(agent_meta.get("route_source", "")),
+                    retrieval_retry=bool(agent_meta.get("retrieval_retry")),
+                    retrieval_retry_reason=str(agent_meta.get("retrieval_retry_reason") or ""),
+                    tools_run=list(agent_meta.get("tools_run") or []),
+                )
+            )
     summaries = summarize_rewrite_comparison(results)
     return results, summaries
 
 
+def run_agent_only_comparison(
+    top_k: int | None,
+    *,
+    eval_file: Path | None = None,
+) -> tuple[list[QuestionResult], list[Summary]]:
+    """仅评测 Agent 线上检索路径。"""
+    k = top_k or settings.top_k
+    print("正在加载 Embedding 模型与向量库...", flush=True)
+    if not wait_until_ready():
+        raise RuntimeError("RAG 组件加载超时")
+    if settings.query_rewrite_enabled and not settings.deepseek_api_key:
+        raise RuntimeError("Agent 评测（含 LLM 改写）需要配置 DEEPSEEK_API_KEY")
+    print("加载完成，开始 Agent 线上路径检索评测。", flush=True)
+    print_retrieval_config()
+    print_agent_alignment_note()
+
+    questions = load_questions(eval_file)
+    results: list[QuestionResult] = []
+    total = len(questions)
+
+    for idx, item in enumerate(questions, start=1):
+        qid = item["id"]
+        question = item["question"]
+        print(f"[{idx}/{total}] {qid} {question[:30]}...", flush=True)
+        t0 = time.perf_counter()
+        _, hit, arts, meta = run_agent_retrieval(question, item, k)
+        ms = (time.perf_counter() - t0) * 1000
+        print(
+            f"  agent[{meta.get('intent')}]: {'命中' if hit else '未命中'} "
+            f"tools={meta.get('tools_run', [])}",
+            flush=True,
+        )
+        results.append(
+            QuestionResult(
+                id=qid,
+                question=question,
+                mode="retrieval_agent",
+                recall_at_k=hit,
+                retrieved_articles=arts,
+                search_query=str(meta.get("search_query") or meta.get("rewrite_query") or ""),
+                query_source=meta.get("query_source", "agent"),
+                fusion_mode=meta.get("fusion_mode", ""),
+                rrf_pool_size=int(meta.get("rrf_pool_size") or 0),
+                latency_ms=ms,
+                intent=str(meta.get("intent", "")),
+                route_source=str(meta.get("route_source", "")),
+                retrieval_retry=bool(meta.get("retrieval_retry")),
+                retrieval_retry_reason=str(meta.get("retrieval_retry_reason") or ""),
+                tools_run=list(meta.get("tools_run") or []),
+            )
+        )
+
+    rows = [r for r in results if r.mode == "retrieval_agent"]
+    summary = Summary(
+        mode="retrieval_agent",
+        count=len(rows),
+        recall_at_k=sum(1 for r in rows if r.recall_at_k) / len(rows) if rows else 0.0,
+        avg_latency_ms=sum(r.latency_ms for r in rows) / len(rows) if rows else 0.0,
+    )
+    print_agent_report([summary], results)
+    return results, [summary]
+
+
 def summarize_rewrite_comparison(results: list[QuestionResult]) -> list[Summary]:
     summaries: list[Summary] = []
-    for mode in ("retrieval_baseline", "retrieval_rewrite", "retrieval_hybrid"):
+    for mode in (
+        "retrieval_baseline",
+        "retrieval_rewrite",
+        "retrieval_hybrid",
+        "retrieval_agent",
+    ):
         rows = [r for r in results if r.mode == mode]
         if not rows:
             continue
@@ -394,37 +598,98 @@ def summarize_rewrite_comparison(results: list[QuestionResult]) -> list[Summary]
     return summaries
 
 
-def print_rewrite_report(summaries: list[Summary], results: list[QuestionResult]) -> None:
-    hybrid_label = hybrid_column_label()
+def print_agent_report(summaries: list[Summary], results: list[QuestionResult]) -> None:
+    agent = next((s for s in summaries if s.mode == "retrieval_agent"), None)
+    if not agent:
+        return
     print("\n" + "=" * 60)
-    print("Query 改写 / 混合检索对比报告")
+    print(f"Agent 线上路径检索报告（{agent_column_label()}）")
     print("=" * 60)
     print_retrieval_config()
+    print_agent_alignment_note()
+    print(f"\n评测集: {EVAL_FILE.name}，共 {agent.count} 题，Top-K={settings.top_k}\n")
+    print(f"| Recall@{settings.top_k} | {agent.recall_at_k:.1%} |")
+    print(f"| 平均检索时延 | {agent.avg_latency_ms:.0f} ms |")
+
+    retry_rows = [r for r in results if r.mode == "retrieval_agent" and r.retrieval_retry]
+    if retry_rows:
+        print(f"\n触发案情补充检索: {len(retry_rows)} 题")
+        for r in retry_rows[:10]:
+            print(f"  {r.id}: {r.retrieval_retry_reason}")
+        if len(retry_rows) > 10:
+            print(f"  ... 共 {len(retry_rows)} 题")
+
+    by_intent: dict[str, list[QuestionResult]] = {}
+    for r in results:
+        if r.mode != "retrieval_agent":
+            continue
+        by_intent.setdefault(r.intent or "unknown", []).append(r)
+    if by_intent:
+        print("\n按意图 Recall:")
+        for intent, rows in sorted(by_intent.items()):
+            hit = sum(1 for x in rows if x.recall_at_k) / len(rows)
+            print(f"  {intent}: {hit:.1%} ({len(rows)} 题)")
+
+
+def print_rewrite_report(summaries: list[Summary], results: list[QuestionResult]) -> None:
+    hybrid_label = hybrid_column_label()
+    agent_label = agent_column_label()
+    print("\n" + "=" * 60)
+    print("Query 改写 / 混合检索 / Agent 线上路径对比报告")
+    print("=" * 60)
+    print_retrieval_config()
+    if any(s.mode == "retrieval_agent" for s in summaries):
+        print_agent_alignment_note()
 
     base = next((s for s in summaries if s.mode == "retrieval_baseline"), None)
     rw = next((s for s in summaries if s.mode == "retrieval_rewrite"), None)
     fusion = next((s for s in summaries if s.mode == "retrieval_hybrid"), None)
+    agent = next((s for s in summaries if s.mode == "retrieval_agent"), None)
     if not base or not rw:
         return
 
+    has_agent = agent is not None
     print(f"\n评测集: {EVAL_FILE.name}，共 {base.count} 题，最终 Top-K={settings.top_k}\n")
-    print(f"| 指标 | 不改写 (baseline) | Query 改写 | {hybrid_label} |")
-    print("|------|-------------------|------------|" + "-" * max(8, len(hybrid_label)) + "|")
+    if has_agent:
+        print(
+            f"| 指标 | 不改写 | Query改写 | {hybrid_label} | {agent_label} |"
+        )
+        print("|------|--------|---------|" + "-" * max(8, len(hybrid_label)) + "|" + "-" * max(8, len(agent_label)) + "|")
+    else:
+        print(f"| 指标 | 不改写 (baseline) | Query 改写 | {hybrid_label} |")
+        print("|------|-------------------|------------|" + "-" * max(8, len(hybrid_label)) + "|")
     diff_rw = rw.recall_at_k - base.recall_at_k
     diff_rw_str = f"+{diff_rw:.1%}" if diff_rw >= 0 else f"{diff_rw:.1%}"
     fusion_recall = f"{fusion.recall_at_k:.1%}" if fusion else "—"
-    print(
-        f"| Recall@{settings.top_k} | {base.recall_at_k:.1%} | {rw.recall_at_k:.1%} "
-        f"({diff_rw_str}) | {fusion_recall} |"
-    )
+    agent_recall = f"{agent.recall_at_k:.1%}" if agent else "—"
+    if has_agent:
+        print(
+            f"| Recall@{settings.top_k} | {base.recall_at_k:.1%} | {rw.recall_at_k:.1%} "
+            f"({diff_rw_str}) | {fusion_recall} | {agent_recall} |"
+        )
+    else:
+        print(
+            f"| Recall@{settings.top_k} | {base.recall_at_k:.1%} | {rw.recall_at_k:.1%} "
+            f"({diff_rw_str}) | {fusion_recall} |"
+        )
     if fusion:
         diff_fusion = fusion.recall_at_k - base.recall_at_k
         diff_fusion_str = f"+{diff_fusion:.1%}" if diff_fusion >= 0 else f"{diff_fusion:.1%}"
-        print(
-            f"| 平均检索时延 | {base.avg_latency_ms:.0f} ms | {rw.avg_latency_ms:.0f} ms | "
-            f"{fusion.avg_latency_ms:.0f} ms |"
-        )
+        if has_agent:
+            print(
+                f"| 平均检索时延 | {base.avg_latency_ms:.0f} ms | {rw.avg_latency_ms:.0f} ms | "
+                f"{fusion.avg_latency_ms:.0f} ms | {agent.avg_latency_ms:.0f} ms |"
+            )
+        else:
+            print(
+                f"| 平均检索时延 | {base.avg_latency_ms:.0f} ms | {rw.avg_latency_ms:.0f} ms | "
+                f"{fusion.avg_latency_ms:.0f} ms |"
+            )
         print(f"\n{hybrid_label} 相对 baseline Recall 变化: {diff_fusion_str}")
+        if agent:
+            diff_agent = agent.recall_at_k - base.recall_at_k
+            diff_agent_str = f"+{diff_agent:.1%}" if diff_agent >= 0 else f"{diff_agent:.1%}"
+            print(f"{agent_label} 相对 baseline Recall 变化: {diff_agent_str}")
 
     def diff_cases(mode_a: str, mode_b: str) -> tuple[list[str], list[str]]:
         improved: list[str] = []
@@ -456,11 +721,21 @@ def print_rewrite_report(summaries: list[Summary], results: list[QuestionResult]
         if vs_rw_regressed:
             print(f"混合相对改写丢失 ({len(vs_rw_regressed)}): {', '.join(vs_rw_regressed)}")
 
+    if agent and fusion:
+        ag_improved, ag_regressed = diff_cases("retrieval_hybrid", "retrieval_agent")
+        if ag_improved:
+            print(f"\nAgent 相对混合新命中 ({len(ag_improved)}): {', '.join(ag_improved)}")
+        if ag_regressed:
+            print(f"Agent 相对混合丢失 ({len(ag_regressed)}): {', '.join(ag_regressed)}")
+        print("\n线上口径: 以 Agent 列为准；混合列为检索管线消融对照。")
+
 
 def run_eval(
     retrieval_only: bool = False,
     top_k: int | None = None,
     rewrite: bool | None = None,
+    *,
+    eval_file: Path | None = None,
 ) -> tuple[list[QuestionResult], list[Summary]]:
     k = top_k or settings.top_k
     print("正在加载 Embedding 模型与向量库...", flush=True)
@@ -475,7 +750,7 @@ def run_eval(
     print_retrieval_config()
 
     kb_exact, kb_by_num = load_kb_index()
-    questions = load_questions()
+    questions = load_questions(eval_file)
     results: list[QuestionResult] = []
     total = len(questions)
 
@@ -660,25 +935,71 @@ def main() -> None:
     parser.add_argument(
         "--compare-rewrite",
         action="store_true",
-        help="对比 Query 改写前/后的检索 Recall（需 DEEPSEEK_API_KEY）",
+        help="对比 baseline / 改写 / 混合 / Agent 线上路径（需 DEEPSEEK_API_KEY）",
+    )
+    parser.add_argument(
+        "--compare-agent",
+        action="store_true",
+        help="仅评测 Agent 线上检索路径（与 /api/ask 一致）",
+    )
+    parser.add_argument(
+        "--no-agent-column",
+        action="store_true",
+        help="与 --compare-rewrite 联用时跳过 Agent 第四列",
     )
     parser.add_argument("--no-rewrite", action="store_true", help="关闭 Query 改写")
     parser.add_argument("--output", type=str, default="", help="保存 JSON 结果路径")
     parser.add_argument("--top-k", type=int, default=None, help="检索条数，默认读取配置")
+    parser.add_argument(
+        "--eval-file",
+        type=str,
+        default="",
+        help="评测集 YAML（默认 data/eval_questions_verified.yaml）",
+    )
+    parser.add_argument(
+        "--min-recall",
+        type=float,
+        default=None,
+        help="Recall 门禁阈值（0–1）；未达标时 exit 1",
+    )
+    parser.add_argument(
+        "--gate-mode",
+        type=str,
+        default="retrieval_agent",
+        help="门禁统计列：retrieval_agent / rag_retrieval / retrieval_hybrid 等",
+    )
     args = parser.parse_args()
 
     rewrite = False if args.no_rewrite else None
+    eval_file = Path(args.eval_file) if args.eval_file else None
+    if eval_file and not eval_file.is_absolute():
+        eval_file = BACKEND / eval_file
+    eval_path = eval_file or EVAL_FILE
 
-    if args.compare_rewrite:
-        results, summaries = run_rewrite_comparison(top_k=args.top_k)
+    if args.compare_agent:
+        results, summaries = run_agent_only_comparison(args.top_k, eval_file=eval_path)
+    elif args.compare_rewrite:
+        results, summaries = run_rewrite_comparison(
+            args.top_k,
+            include_agent=not args.no_agent_column,
+            eval_file=eval_path,
+        )
         print_rewrite_report(summaries, results)
     else:
         results, summaries = run_eval(
             retrieval_only=args.retrieval_only,
             top_k=args.top_k,
             rewrite=rewrite,
+            eval_file=eval_path,
         )
         print_report(summaries, args.retrieval_only)
+
+    if args.min_recall is not None:
+        enforce_recall_gate(
+            summaries,
+            gate_mode=args.gate_mode,
+            min_recall=args.min_recall,
+        )
 
     if args.output:
         out = Path(args.output)
@@ -686,6 +1007,9 @@ def main() -> None:
         payload = {
             "top_k": args.top_k or settings.top_k,
             "compare_rewrite": args.compare_rewrite,
+            "compare_agent": args.compare_agent,
+            "agent_column_included": args.compare_rewrite and not args.no_agent_column,
+            "eval_alignment": "retrieval_agent uses agent.pre_retrieval.run_agent_pre_retrieval",
             "query_rewrite_enabled": settings.query_rewrite_enabled if rewrite is None else rewrite,
             "query_rewrite_mode": settings.query_rewrite_mode,
             "retrieval": "cascade_union",

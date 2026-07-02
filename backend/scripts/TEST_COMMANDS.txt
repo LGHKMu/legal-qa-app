@@ -32,9 +32,15 @@ python scripts/test_rag_pipeline.py --id v05
 python scripts/test_rag_pipeline.py --ids v25,v68
 python scripts/test_rag_pipeline.py --oral
 
-# ========== 2. compare_rag.py（官方评测：baseline / 改写 / Cascade混合）==========
+# ========== 2. compare_rag.py（官方评测：baseline / 改写 / 混合 / Agent线上）==========
 python scripts/compare_rag.py --compare-rewrite --retrieval-only
+python scripts/compare_rag.py --compare-agent --retrieval-only
 python scripts/compare_rag.py --compare-rewrite --retrieval-only --output data/eval_report.json
+
+# ========== 3. Recall 门禁（CI 对齐）==========
+python scripts/recall_gate.py
+python scripts/recall_gate.py --profile ci_full   # 需 DEEPSEEK_API_KEY
+python scripts/run_all_tests.py --recall-gate
 
 # ========== 3. diagnose_hybrid_gap.py（混合 vs 改写差异）==========
 python scripts/diagnose_hybrid_gap.py --ids v25,v68

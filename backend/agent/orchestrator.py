@@ -7,11 +7,10 @@ from typing import Any
 
 from config import DISCLAIMER
 from agent.plans import get_plan, intent_label, tool_label
+from agent.pre_retrieval import PRE_TOOLS
 from agent.router import route_question
 from agent.state import AgentState
 from agent.tools import run_tool
-
-PRE_TOOLS = frozenset({"filter_context", "get_article", "search_laws"})
 
 RETRY_REASON_LABELS = {
     "empty_results": "未检索到法条",
@@ -177,6 +176,8 @@ def stream_agent_answer(
             ms = (time.perf_counter() - t0) * 1000
             if tool == "search_laws" and summary.get("retry"):
                 yield _sse("agent_retry", _agent_retry_payload(summary))
+            if tool == "get_article" and summary.get("shortcut"):
+                summary = {**summary, "skipped_search": True}
             yield _sse("agent_step", _step_payload(tool, "done", ms, summary))
 
             if tool == "get_article" and plan.intent == "statute_lookup" and not summary.get("found"):
@@ -190,13 +191,19 @@ def stream_agent_answer(
                     trace=trace,
                     intent=plan.intent,
                 )
+                fb_summary = {
+                    "citation_count": len(state.citations),
+                    "fallback": True,
+                }
+                if state.retrieve_meta.get("law_filter"):
+                    fb_summary["law_filter"] = state.retrieve_meta["law_filter"]
                 yield _sse(
                     "agent_step",
                     _step_payload(
                         "search_laws",
                         "done",
                         (time.perf_counter() - t1) * 1000,
-                        {"citation_count": len(state.citations), "fallback": True},
+                        fb_summary,
                     ),
                 )
 

@@ -59,10 +59,13 @@ def test_ask_without_api_key_returns_500() -> None:
     from config import settings
 
     original = settings.deepseek_api_key
+    original_sec = settings.security_require_api_key
     settings.deepseek_api_key = ""
+    settings.security_require_api_key = False
     try:
         client = TestClient(app)
         res = client.post("/api/ask", json={"question": "宪法第三十四条是什么？"})
-        assert res.status_code == 500
+        assert res.status_code == 503
     finally:
         settings.deepseek_api_key = original
+        settings.security_require_api_key = original_sec

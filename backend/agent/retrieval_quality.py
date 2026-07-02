@@ -105,6 +105,15 @@ def assess_retrieval_quality(chunks: list[dict], meta: dict | None, *, question:
         if not topic_ok:
             reasons.insert(0, topic_reason)
 
+    # 主题已匹配且 top 分够高时，「分差小」不代表检索失败（多部相关法条并列常见）
+    if (
+        reasons == ["low_score_gap"]
+        and signals.get("topic_relevant")
+        and numeric
+        and numeric[0] >= settings.agent_case_retry_min_top_score
+    ):
+        reasons.clear()
+
     sufficient = len(reasons) == 0
     return RetrievalQuality(
         sufficient=sufficient,

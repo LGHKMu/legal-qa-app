@@ -484,7 +484,7 @@ def _resolve_hybrid_chunks(
                 query_type=retrieval_ctx.query_type,
                 query_weights=query_weights,
             )
-        if multi_path and rewrite_q:
+        if multi_path and rewrite_q and settings.rewrite_union_rerank_enabled:
             chunks, union_meta = _fuse_rewrite_union(
                 question,
                 rewrite_q,

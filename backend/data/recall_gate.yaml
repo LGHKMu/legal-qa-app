@@ -1,0 +1,40 @@
+# CI / 本地 Recall 门禁阈值（68 题 verified 集，Recall@5）
+#
+# profiles:
+#   ci_no_llm  — 默认 CI（无 API Key）：QUERY_REWRITE_ENABLED=false
+#   ci_full    — 可选完整门禁（需 DEEPSEEK_API_KEY）：与线上一致
+
+version: "1.0"
+eval_file: data/eval_questions_verified.yaml
+top_k: 5
+
+profiles:
+  ci_no_llm:
+    description: "Agent 线上路径，无 LLM 改写/路由（CI 默认可跑）"
+    command: compare_agent
+    gate_mode: retrieval_agent
+    min_recall: 0.72
+    env:
+      QUERY_REWRITE_ENABLED: "false"
+      AGENT_ROUTER_LLM_ENABLED: "false"
+      INFERENCE_DEVICE: cpu
+
+  ci_full:
+    description: "Agent 线上路径，含 LLM 改写（需 DEEPSEEK_API_KEY）"
+    command: compare_agent
+    gate_mode: retrieval_agent
+    min_recall: 0.85
+    requires_api_key: true
+    env:
+      QUERY_REWRITE_ENABLED: "true"
+      AGENT_ROUTER_LLM_ENABLED: "true"
+      INFERENCE_DEVICE: cpu
+
+  hybrid_no_rewrite:
+    description: "全题 hybrid 检索，无改写（检索管线回归）"
+    command: hybrid_no_rewrite
+    gate_mode: rag_retrieval
+    min_recall: 0.68
+    env:
+      QUERY_REWRITE_ENABLED: "false"
+      INFERENCE_DEVICE: cpu

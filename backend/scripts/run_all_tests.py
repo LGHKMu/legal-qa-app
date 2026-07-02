@@ -6,6 +6,9 @@
   # CI 门禁（单元测试 + 前端 build，约 1–3 分钟，不需 API Key）
   python scripts/run_all_tests.py --ci
 
+  # Recall 门禁（构建索引 + Agent 评测，约 5–15 分钟，不需 API Key）
+  python scripts/run_all_tests.py --recall-gate
+
   # 快速全套（冒烟 + 诊断 + 口语题，约 8–12 分钟，需 API + 索引）
   python scripts/run_all_tests.py --quick
 
@@ -77,9 +80,22 @@ def run_ci() -> int:
     return 0
 
 
+def run_recall_gate() -> int:
+    scripts = BACKEND / "scripts"
+    return run_step(
+        "[recall-gate] Agent Recall 门禁（ci_no_llm）",
+        [PYTHON, str(scripts / "recall_gate.py"), "--profile", "ci_no_llm"],
+    )
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="运行全部测试")
     parser.add_argument("--ci", action="store_true", help="CI 门禁：单元测试 + 前端 build")
+    parser.add_argument(
+        "--recall-gate",
+        action="store_true",
+        help="Recall 门禁：构建索引 + Agent 评测（不需 API Key）",
+    )
     parser.add_argument("--quick", action="store_true", help="快速测试集")
     parser.add_argument("--full", action="store_true", help="完整 60 题测试")
     parser.add_argument("--smoke-only", action="store_true", help="仅冒烟")
@@ -87,6 +103,9 @@ def main() -> None:
 
     if args.ci:
         sys.exit(run_ci())
+
+    if args.recall_gate:
+        sys.exit(run_recall_gate())
 
     if not any([args.quick, args.full, args.smoke_only]):
         args.quick = True

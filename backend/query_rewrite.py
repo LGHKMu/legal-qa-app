@@ -210,6 +210,13 @@ def build_case_retry_query(question: str, primary_meta: dict | None = None) -> s
     return question.strip()
 
 
+def build_case_primary_query(question: str) -> str | None:
+    """案情首轮检索 query：无 LLM 改写时，命中主题规则则用规则增强 query。"""
+    if topic_search_hints(question):
+        return enrich_search_query(None, question)
+    return None
+
+
 def topic_anchor_lookup_questions(question: str) -> list[str]:
     """返回需要保底查条的伪问题（供 lookup_article 使用）。"""
     lookups: list[str] = []
@@ -243,6 +250,11 @@ def _infer_domain_from_rules(question: str) -> tuple[str | None, float]:
     if len(matched) > 1:
         return None, 0.4
     return None, 0.0
+
+
+def infer_law_filter_from_rules(question: str) -> tuple[str | None, float]:
+    """规则推断单一 law_id，供 Agent 硬过滤（不调 LLM）。"""
+    return _infer_domain_from_rules(question)
 
 
 def infer_retrieval_context(

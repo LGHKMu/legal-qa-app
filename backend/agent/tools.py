@@ -101,6 +101,17 @@ def _article_nos(chunks: list[dict]) -> list[str]:
     return [c.get("article_no", "") for c in chunks]
 
 
+def _agent_rewrite(explicit: bool | None) -> bool | None:
+    """Agent 检索是否走 LLM 改写；全局关闭时强制 baseline。"""
+    from config import settings
+
+    if explicit is False:
+        return False
+    if not settings.query_rewrite_enabled:
+        return False
+    return True if explicit is None else explicit
+
+
 def _search_laws_once(
     question: str,
     history: list[dict],
@@ -109,12 +120,14 @@ def _search_laws_once(
     *,
     rewrite: bool | None = None,
     search_query_override: str | None = None,
+    law_filter: str | None = None,
 ) -> tuple[list[dict], dict]:
     from rag import retrieve_fusion
 
     return retrieve_fusion(
         question,
         history,
+        law_filter=law_filter,
         profile=trace is not None,
         rewrite=rewrite,
         search_query_override=search_query_override,
@@ -181,14 +194,27 @@ def _search_laws_with_case_retry(
     history: list[dict],
     state,
     trace,
+    *,
+    law_filter: str | None = None,
 ) -> dict:
     from agent.retrieval_quality import assess_retrieval_quality, merge_retrieval_chunks
+    from agent.retrieval_policy import resolve_case_primary_search_query
     from rag import build_retrieve_trace_output
     from config import settings
 
+    primary_rewrite = _agent_rewrite(True)
+    primary_query = resolve_case_primary_search_query(question, rewrite=primary_rewrite)
     primary_chunks, primary_meta = _search_laws_once(
-        question, state.relevant_history or history, state, trace, rewrite=True
+        question,
+        state.relevant_history or history,
+        state,
+        trace,
+        rewrite=primary_rewrite,
+        search_query_override=primary_query,
+        law_filter=law_filter,
     )
+    if primary_query:
+        primary_meta = {**primary_meta, "primary_query_override": primary_query}
     primary_chunks = _inject_topic_anchor_chunks(question, primary_chunks)
     quality = assess_retrieval_quality(primary_chunks, primary_meta, question=question)
 
@@ -199,6 +225,8 @@ def _search_laws_with_case_retry(
 
     chunks = primary_chunks
     meta = primary_meta
+    if law_filter:
+        meta = {**meta, "law_filter": law_filter}
 
     if (
         settings.agent_case_retry_enabled
@@ -214,11 +242,13 @@ def _search_laws_with_case_retry(
             trace,
             rewrite=False,
             search_query_override=retry_query,
+            law_filter=law_filter,
         )
         chunks = merge_retrieval_chunks(primary_chunks, secondary_chunks)
         chunks = _inject_topic_anchor_chunks(question, chunks)
         meta = {
             **primary_meta,
+            "law_filter": law_filter,
             "retry": True,
             "retry_reason": quality.reason,
             "retry_strategy": "baseline_no_rewrite",
@@ -284,17 +314,29 @@ def run_tool(
             from rag import format_citations
 
             state.citations = format_citations(state.chunks)
-        out = {**summary, "citation_count": len(state.citations)}
+            state.retrieve_meta = {
+                "source": "parsed_json",
+                "shortcut": "get_article",
+                "law_id": chunk.get("law_id"),
+                "article_no": chunk.get("article_no"),
+            }
+        out = {**summary, "citation_count": len(state.citations), "shortcut": bool(chunk)}
         if trace:
             trace.step("agent:get_article", (time.perf_counter() - t0) * 1000, out)
         return out
 
     if tool == "search_laws":
+        from agent.retrieval_policy import resolve_agent_law_filter, search_rewrite_for_intent
         from rag import build_retrieve_trace_output
+
+        law_filter = resolve_agent_law_filter(question, intent)
+        rewrite = search_rewrite_for_intent(intent)
+        if rewrite is not False:
+            rewrite = _agent_rewrite(rewrite)
 
         if intent == "case_consult":
             out = _search_laws_with_case_retry(
-                question, history, state, trace
+                question, history, state, trace, law_filter=law_filter
             )
         else:
             chunks, meta = _search_laws_once(
@@ -302,7 +344,11 @@ def run_tool(
                 state.relevant_history or history,
                 state,
                 trace,
+                rewrite=rewrite,
+                law_filter=law_filter,
             )
+            if law_filter:
+                meta["law_filter"] = law_filter
             _apply_search_results(state, chunks, meta)
             out = build_retrieve_trace_output(state.citations, meta, chunks)
 

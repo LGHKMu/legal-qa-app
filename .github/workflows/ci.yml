@@ -55,3 +55,74 @@ jobs:
       - name: Frontend build
         working-directory: frontend
         run: npm ci && npm run build
+
+  recall-gate:
+    name: recall-gate (Agent ci_no_llm)
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    env:
+      QUERY_REWRITE_ENABLED: "false"
+      AGENT_ROUTER_LLM_ENABLED: "false"
+      INFERENCE_DEVICE: cpu
+      HF_HUB_DISABLE_PROGRESS_BARS: "1"
+      TQDM_DISABLE: "1"
+      TRANSFORMERS_VERBOSITY: error
+      RECALL_GATE_PROFILE: ci_no_llm
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: |
+            backend/requirements.txt
+            backend/requirements-dev.txt
+
+      - name: Install Python dependencies
+        working-directory: backend
+        run: pip install -r requirements.txt -r requirements-dev.txt
+
+      - name: Recall gate (build index + Agent eval)
+        working-directory: backend
+        run: python scripts/recall_gate.py --profile ci_no_llm
+
+  recall-gate-full:
+    name: recall-gate-full (Agent + LLM, optional)
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    if: github.event_name == 'workflow_dispatch' && secrets.DEEPSEEK_API_KEY != ''
+
+    env:
+      DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+      QUERY_REWRITE_ENABLED: "true"
+      AGENT_ROUTER_LLM_ENABLED: "true"
+      INFERENCE_DEVICE: cpu
+      HF_HUB_DISABLE_PROGRESS_BARS: "1"
+      TQDM_DISABLE: "1"
+      TRANSFORMERS_VERBOSITY: error
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: |
+            backend/requirements.txt
+            backend/requirements-dev.txt
+
+      - name: Install Python dependencies
+        working-directory: backend
+        run: pip install -r requirements.txt -r requirements-dev.txt
+
+      - name: Full Agent Recall gate (>= 85%)
+        working-directory: backend
+        run: python scripts/recall_gate.py --profile ci_full

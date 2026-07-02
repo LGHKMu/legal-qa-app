@@ -56,6 +56,57 @@
 
 扩展新主题时，在 `TOPIC_SEARCH_RULES` / `TOPIC_ANCHOR_ARTICLES` 增加配置即可。
 
+### 检索性能优化（P0）
+
+| 能力 | 说明 | 配置 |
+|------|------|------|
+| **查条短路** | `statute_lookup` 且 `get_article` 命中 parsed JSON 时，跳过混合检索 | 无需配置 |
+| **法律域硬过滤** | 高置信度单一 `law_id` 时传给 `retrieve_fusion`（Chroma `where` + BM25 过滤） | `AGENT_LAW_FILTER_ENABLED`、`AGENT_LAW_FILTER_MIN_CONFIDENCE` |
+| **查条 fallback 无改写** | 查条未命中 JSON 时的 fallback 检索不走 LLM 改写 | 自动（`statute_lookup`） |
+| **fast 档** | 关 concat/union、缩小候选池，降低 CPU 精排与 BM25 开销 | `RAG_PROFILE=fast` |
+
+演示或低延迟部署可设 `RAG_PROFILE=fast`；默认 `accurate` 保持评测 Recall 口径不变。
+
+### Agent 检索增强（P1）
+
+- **案情首轮规则 query**：无 LLM 改写时，命中主题规则（如高空抛物）首轮即用规则增强 query，不再等二轮 retry
+- **Retry 降噪**：主题已匹配且 top 分够高时，不因「条与条分数接近」误触发二轮检索
+- **查条短路反馈**：`get_article` 命中时 SSE 步骤带 `shortcut` / `skipped_search`，前端可展示「已精确查条」
+
+### 评测口径（与线上一致）
+
+| 列 / 命令 | 含义 | 与 `/api/ask` 关系 |
+|-----------|------|-------------------|
+| **混合列** | 全题 `retrieve_fusion(rewrite=True)` | 检索消融对照，**非**线上默认 |
+| **Agent 列** | `agent.pre_retrieval.run_agent_pre_retrieval` | **与线上一致**（路由 + 查条/fallback + 案情 retry） |
+
+```bash
+cd backend
+# 四列对比（含 Agent 线上路径）
+python scripts/compare_rag.py --compare-rewrite --retrieval-only
+
+# 仅 Agent 列
+python scripts/compare_rag.py --compare-agent --retrieval-only
+```
+
+**线上口径以 Agent 列为准**；混合列用于对比 Cascade+Union 检索管线本身的上限。
+
+### CI Recall 门禁
+
+| Profile | 说明 | 阈值 | API Key |
+|---------|------|------|---------|
+| `ci_no_llm`（默认 CI） | Agent 线上路径，无 LLM 改写 | Recall@5 ≥ 72% | 不需要 |
+| `ci_full`（手动 workflow） | Agent 含 LLM 改写 | Recall@5 ≥ 85% | 需要 `DEEPSEEK_API_KEY` secret |
+
+```bash
+cd backend
+python scripts/recall_gate.py                    # 默认 ci_no_llm
+python scripts/recall_gate.py --profile ci_full  # 完整线上口径
+python scripts/compare_rag.py --compare-agent --retrieval-only --min-recall 0.72 --gate-mode agent
+```
+
+阈值配置见 `backend/data/recall_gate.yaml`；GitHub Actions 在 `recall-gate` job 中自动运行。
+
 ## 目录结构
 
 ```
@@ -97,20 +148,22 @@ python scripts/fetch_laws.py      # 从官方法律数据库抓取最新原文
 python scripts/build_index.py     # 重新向量化入库
 ```
 
-## Docker 部署（生产 / 演示）
+## Docker 部署（安全优先）
 
 ```powershell
-# 1. 配置 backend\.env（含 DEEPSEEK_API_KEY）
-# 2. 宿主机准备索引与模型（首次）：
-#    cd backend
-#    python scripts/build_index.py
-#    python scripts/download_reranker.py
-# 3. 启动
-docker compose up -d --build
-# 或： .\deploy.ps1
+# 1. 根目录 .env：APP_API_KEY（随机密钥，见 docs/SECURITY.md）
+# 2. backend\.env：DEEPSEEK_API_KEY、CORS_ORIGINS
+# 3. 宿主机准备索引（首次）：cd backend && python scripts/build_index.py
+# 4. 启动
+copy .env.example .env   # 填入 APP_API_KEY
+.\deploy.ps1
 ```
 
-浏览器访问 **http://localhost:8080**。健康检查：`/api/health`、`/api/ready`（RAG 预热完成后为 `true`）。
+- 对外仅 **8080**；backend **8001 不暴露**
+- 问答需 **APP_API_KEY**（nginx 自动注入，前端无需改代码）
+- 对外暴露时可开启 **Basic Auth**，见 [docs/SECURITY.md](docs/SECURITY.md)
+
+浏览器访问 **http://localhost:8080**。健康检查：`/api/health`、`/api/ready`。
 
 详见 [docs/DEPLOY.md](docs/DEPLOY.md)。
 

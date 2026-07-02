@@ -83,6 +83,15 @@ class Settings(BaseSettings):
     uvicorn_host: str = "0.0.0.0"
     uvicorn_port: int = 8001
     log_level: str = "info"
+    # 安全（部署建议开启 REQUIRE + APP_API_KEY，见 docs/SECURITY.md）
+    security_require_api_key: bool = False
+    app_api_key: str = ""
+    rate_limit_ask_per_minute: int = 20
+    security_sanitize_errors: bool = True
+    security_trust_proxy_headers: bool = True
+    security_expose_model_in_health: bool = False
+    ask_max_history_turns: int = 20
+    ask_max_history_content_chars: int = 2000
     # Agent 运行时
     agent_enabled: bool = True
     agent_router_llm_enabled: bool = True
@@ -92,9 +101,32 @@ class Settings(BaseSettings):
     agent_case_retry_min_score_gap: float = 0.08
     agent_case_retry_max_law_ids: int = 2
     agent_case_retry_min_domain_conf: float = 0.7
+    # 检索档位：accurate（默认全量 Cascade+Union）| fast（演示/低延迟）
+    rag_profile: str = "accurate"
+    # Agent 检索：高置信度法律域硬过滤（Chroma where + BM25 范围）
+    agent_law_filter_enabled: bool = True
+    agent_law_filter_min_confidence: float = 0.7
+    # 改写列 ∪ 混合列 的 union 精排（fast 档可关）
+    rewrite_union_rerank_enabled: bool = True
 
 
 settings = Settings()
+
+
+def apply_rag_profile() -> None:
+    """按 RAG_PROFILE 覆盖检索参数（在 settings 加载后调用）。"""
+    profile = (settings.rag_profile or "accurate").strip().lower()
+    if profile != "fast":
+        return
+    settings.concat_retrieval_enabled = False
+    settings.rewrite_union_rerank_enabled = False
+    settings.rrf_pool_k = min(settings.rrf_pool_k, 20)
+    settings.rerank_candidate_k = min(settings.rerank_candidate_k, 25)
+    settings.retrieve_candidate_k = min(settings.retrieve_candidate_k, 20)
+    settings.bm25_candidate_k = min(settings.bm25_candidate_k, 15)
+
+
+apply_rag_profile()
 
 
 def cors_origins_list() -> list[str]:

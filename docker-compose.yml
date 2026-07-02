@@ -1,5 +1,5 @@
-# legal-qa-app Docker Compose
-# 用法见 docs/DEPLOY.md
+# legal-qa-app Docker Compose（安全默认：后端不对外暴露，问答需 APP_API_KEY）
+# 详见 docs/SECURITY.md、docs/DEPLOY.md
 
 services:
   backend:
@@ -12,9 +12,13 @@ services:
     environment:
       UVICORN_HOST: 0.0.0.0
       UVICORN_PORT: 8001
-      # Docker 默认 CPU；有 NVIDIA 时可改为 cuda 并启用 gpu profile
       INFERENCE_DEVICE: ${INFERENCE_DEVICE:-cpu}
       CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:8080}
+      SECURITY_REQUIRE_API_KEY: ${SECURITY_REQUIRE_API_KEY:-true}
+      APP_API_KEY: ${APP_API_KEY:-}
+      RATE_LIMIT_ASK_PER_MINUTE: ${RATE_LIMIT_ASK_PER_MINUTE:-20}
+      SECURITY_SANITIZE_ERRORS: ${SECURITY_SANITIZE_ERRORS:-true}
+      SECURITY_TRUST_PROXY_HEADERS: ${SECURITY_TRUST_PROXY_HEADERS:-true}
     volumes:
       - ./backend/data/chroma:/app/data/chroma
       - ./backend/data/bm25:/app/data/bm25
@@ -37,6 +41,12 @@ services:
     container_name: legal-qa-frontend
     ports:
       - "${APP_PORT:-8080}:80"
+    environment:
+      BACKEND_API_KEY: ${APP_API_KEY:-}
+      NGINX_BASIC_AUTH: ${NGINX_BASIC_AUTH:-off}
+    # 启用 Basic Auth 时：NGINX_BASIC_AUTH=on 并取消下一行注释
+    # volumes:
+    #   - ./deploy/htpasswd:/etc/nginx/htpasswd:ro
     depends_on:
       backend:
         condition: service_healthy
