@@ -46,7 +46,7 @@ jobs:
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "22"
           cache: npm
           cache-dependency-path: frontend/package-lock.json
 
@@ -65,7 +65,7 @@ jobs:
   recall-gate:
     name: recall-gate (Agent ci_no_llm)
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 60
 
     env:
       QUERY_REWRITE_ENABLED: "false"
@@ -75,6 +75,10 @@ jobs:
       TQDM_DISABLE: "1"
       TRANSFORMERS_VERBOSITY: error
       RECALL_GATE_PROFILE: ci_no_llm
+      EMBEDDING_MODEL: ./data/models/bge-small-zh-v1.5
+      EMBEDDING_LOCAL_ONLY: "true"
+      RERANK_MODEL_PATH: ./data/models/bge-reranker-base
+      RERANK_LOCAL_ONLY: "true"
 
     steps:
       - name: Checkout
@@ -92,6 +96,16 @@ jobs:
       - name: Install Python dependencies
         working-directory: backend
         run: pip install -r requirements.txt -r requirements-dev.txt
+
+      - name: Cache CI models
+        uses: actions/cache@v4
+        with:
+          path: backend/data/models
+          key: ci-models-v1-${{ runner.os }}
+
+      - name: Download embedding and reranker models
+        working-directory: backend
+        run: python scripts/download_ci_models.py
 
       - name: Recall gate (build index + Agent eval)
         working-directory: backend
@@ -111,6 +125,10 @@ jobs:
       HF_HUB_DISABLE_PROGRESS_BARS: "1"
       TQDM_DISABLE: "1"
       TRANSFORMERS_VERBOSITY: error
+      EMBEDDING_MODEL: ./data/models/bge-small-zh-v1.5
+      EMBEDDING_LOCAL_ONLY: "true"
+      RERANK_MODEL_PATH: ./data/models/bge-reranker-base
+      RERANK_LOCAL_ONLY: "true"
 
     steps:
       - name: Checkout
@@ -137,6 +155,16 @@ jobs:
       - name: Install Python dependencies
         working-directory: backend
         run: pip install -r requirements.txt -r requirements-dev.txt
+
+      - name: Cache CI models
+        uses: actions/cache@v4
+        with:
+          path: backend/data/models
+          key: ci-models-v1-${{ runner.os }}
+
+      - name: Download embedding and reranker models
+        working-directory: backend
+        run: python scripts/download_ci_models.py
 
       - name: Full Agent Recall gate (>= 85%)
         working-directory: backend

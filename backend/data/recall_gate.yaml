@@ -18,6 +18,10 @@ profiles:
       QUERY_REWRITE_ENABLED: "false"
       AGENT_ROUTER_LLM_ENABLED: "false"
       INFERENCE_DEVICE: cpu
+      EMBEDDING_MODEL: ./data/models/bge-small-zh-v1.5
+      EMBEDDING_LOCAL_ONLY: "true"
+      RERANK_MODEL_PATH: ./data/models/bge-reranker-base
+      RERANK_LOCAL_ONLY: "true"
 
   ci_full:
     description: "Agent 线上路径，含 LLM 改写（需 DEEPSEEK_API_KEY）"
