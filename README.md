@@ -96,7 +96,7 @@ python scripts/compare_rag.py --compare-agent --retrieval-only
 | Profile | 说明 | 阈值 | API Key |
 |---------|------|------|---------|
 | `ci_no_llm`（默认 CI） | Agent 线上路径，无 LLM 改写 | Recall@5 ≥ 72% | 不需要 |
-| `ci_full`（手动 workflow） | Agent 含 LLM 改写 | Recall@5 ≥ 85% | 需要 `DEEPSEEK_API_KEY` secret |
+| `ci_full`（手动 workflow，勾选 run_full_recall_gate） | Agent 含 LLM 改写 | Recall@5 ≥ 85% | 需要 `DEEPSEEK_API_KEY` secret |
 
 ```bash
 cd backend
